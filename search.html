@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spendora Search</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="dashboard-shell">
+        <aside class="side-rail" aria-label="Dashboard navigation">
+            <a class="logo-mark" href="index.html#dashboardTop" aria-label="Expense tracker">
+                <span></span><span></span><span></span><span></span>
+            </a>
+            <a class="rail-button" href="index.html#dashboardTop" title="Dashboard" aria-label="Dashboard"><span class="ui-icon icon-grid"></span></a>
+            <a class="rail-button" href="analytics.html" title="Analytics" aria-label="Analytics"><span class="ui-icon icon-chart"></span></a>
+            <a class="rail-button" href="wallet.html" title="Wallet" aria-label="Wallet"><span class="ui-icon icon-wallet"></span></a>
+            <a class="rail-button active" href="search.html" title="Search" aria-label="Search expenses"><span class="ui-icon icon-search"></span></a>
+            <a class="rail-button" href="categories.html" title="Categories" aria-label="Categories"><span class="ui-icon icon-list"></span></a>
+            <div class="rail-spacer"></div>
+            <button class="rail-button theme-toggle" id="themeToggle" title="Switch theme" aria-label="Switch to dark mode" aria-pressed="false">
+                <span class="ui-icon icon-sun theme-sun" aria-hidden="true"></span>
+                <span class="ui-icon icon-moon theme-moon" aria-hidden="true"></span>
+            </button>
+            <button class="rail-button danger" id="logoutBtn" title="Logout" aria-label="Logout"><span class="ui-icon icon-logout"></span></button>
+        </aside>
+
+        <main class="main-area search-main" id="searchTop">
+            <nav class="topbar">
+                <div class="greeting">
+                    <a class="brand-title-link" href="index.html#dashboardTop" aria-label="Go to dashboard">
+                        <h1 class="brand-word">Spendora</h1>
+                    </a>
+                    <p id="timeGreeting">Here is your spending overview</p>
+                </div>
+                <div class="tabs-sticky-wrap">
+                    <div class="tabs" id="headerTabs" aria-label="Dashboard sections">
+                        <a href="index.html#expenseForm">Add</a>
+                        <a href="analytics.html">Analytics</a>
+                        <a href="wallet.html">Transactions</a>
+                        <a class="active" href="search.html">Search</a>
+                        <a href="categories.html">Categories</a>
+                    </div>
+                </div>
+                <div class="top-actions">
+                    <div class="action-menu">
+                        <button class="round-action" id="notificationBtn" title="Notifications" aria-expanded="false" aria-controls="notificationPanel"><span class="ui-icon icon-bell"></span></button>
+                        <div class="menu-panel" id="notificationPanel">
+                            <strong>Notifications</strong>
+                            <p id="notificationText">Your dashboard is up to date.</p>
+                        </div>
+                    </div>
+                    <div class="action-menu">
+                        <button class="round-action" id="messageBtn" title="Messages" aria-expanded="false" aria-controls="messagePanel"><span class="ui-icon icon-mail"></span></button>
+                        <div class="menu-panel" id="messagePanel">
+                            <strong>Messages</strong>
+                            <p>No messages yet. Expense alerts will appear here.</p>
+                        </div>
+                    </div>
+                    <div class="action-menu">
+                        <button class="avatar" id="profileBtn" aria-label="User profile" aria-expanded="false" aria-controls="profilePanel">
+                            <span class="ui-icon icon-user" id="avatarGuestIcon" aria-hidden="true"></span>
+                            <span id="avatarInitial"></span>
+                        </button>
+                        <div class="menu-panel profile-panel is-signed-out" id="profilePanel">
+                            <strong id="profileName">Login or sign up</strong>
+                            <p id="profileSubtitle">Start your Spendora experience and keep your spending secure.</p>
+                            <button type="button" id="profileAddBtn" hidden>Switch user mode</button>
+                            <button type="button" class="profile-secondary" id="profileLoginBtn">Login or sign up</button>
+                            <button type="button" class="profile-danger" id="profileLogoutBtn" hidden>Logout</button>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <section class="search-workspace" id="searchPage">
+                <section class="panel search-control-panel">
+                    <div class="panel-head search-panel-head">
+                        <div>
+                            <h2>Search expenses</h2>
+                            <p>Find transactions by name, category, payment method, or notes.</p>
+                        </div>
+                        <span class="search-count" id="searchResultCount">Loading</span>
+                    </div>
+
+                    <div class="search-filter-toolbar" aria-label="Search filters">
+                        <label class="toolbar-field">
+                            <span>Category</span>
+                            <div class="spendora-select" data-select-root data-placeholder="All Categories">
+                                <input type="hidden" id="searchCategory">
+                                <button type="button" class="spendora-select-trigger" data-select-trigger aria-expanded="false">
+                                    <span data-select-label>All Categories</span>
+                                    <i aria-hidden="true"></i>
+                                </button>
+                                <div class="spendora-select-menu" data-select-menu hidden>
+                                    <button type="button" class="is-placeholder is-selected" data-select-option="" aria-selected="true">All Categories</button>
+                                    <button type="button" data-select-option="Food">Food</button>
+                                    <button type="button" data-select-option="Transport">Transport</button>
+                                    <button type="button" data-select-option="Shopping">Shopping</button>
+                                    <button type="button" data-select-option="Bills">Bills</button>
+                                    <button type="button" data-select-option="Entertainment">Entertainment</button>
+                                    <button type="button" data-select-option="Health">Health</button>
+                                    <button type="button" data-select-option="Other">Other</button>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="toolbar-field">
+                            <span>Payment</span>
+                            <div class="spendora-select" data-select-root data-placeholder="All Methods">
+                                <input type="hidden" id="searchPaymentMethod">
+                                <button type="button" class="spendora-select-trigger" data-select-trigger aria-expanded="false">
+                                    <span data-select-label>All Methods</span>
+                                    <i aria-hidden="true"></i>
+                                </button>
+                                <div class="spendora-select-menu" data-select-menu hidden>
+                                    <button type="button" class="is-placeholder is-selected" data-select-option="" aria-selected="true">All Methods</button>
+                                    <button type="button" data-select-option="Cash">Cash</button>
+                                    <button type="button" data-select-option="Credit Card">Credit Card</button>
+                                    <button type="button" data-select-option="Debit Card">Debit Card</button>
+                                    <button type="button" data-select-option="UPI">UPI</button>
+                                    <button type="button" data-select-option="Net Banking">Net Banking</button>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="toolbar-field">
+                            <span>From</span>
+                            <div class="spendora-date-picker search-date-picker" data-placeholder="dd-mm-yyyy">
+                                <input type="hidden" id="searchStartDate">
+                                <button type="button" class="date-picker-trigger" aria-expanded="false">
+                                    <span data-date-label>dd-mm-yyyy</span>
+                                    <span class="ui-icon icon-calendar" aria-hidden="true"></span>
+                                </button>
+                                <div class="date-picker-popover" hidden></div>
+                            </div>
+                        </label>
+                        <label class="toolbar-field">
+                            <span>To</span>
+                            <div class="spendora-date-picker search-date-picker" data-placeholder="dd-mm-yyyy">
+                                <input type="hidden" id="searchEndDate">
+                                <button type="button" class="date-picker-trigger" aria-expanded="false">
+                                    <span data-date-label>dd-mm-yyyy</span>
+                                    <span class="ui-icon icon-calendar" aria-hidden="true"></span>
+                                </button>
+                                <div class="date-picker-popover" hidden></div>
+                            </div>
+                        </label>
+                        <label class="toolbar-field">
+                            <span>Sort</span>
+                            <div class="spendora-select" data-select-root data-placeholder="Newest first">
+                                <input type="hidden" id="searchSort" value="date-desc">
+                                <button type="button" class="spendora-select-trigger" data-select-trigger aria-expanded="false">
+                                    <span data-select-label>Newest first</span>
+                                    <i aria-hidden="true"></i>
+                                </button>
+                                <div class="spendora-select-menu" data-select-menu hidden>
+                                    <button type="button" class="is-selected" data-select-option="date-desc" aria-selected="true">Newest first</button>
+                                    <button type="button" data-select-option="date-asc">Oldest first</button>
+                                    <button type="button" data-select-option="amount-desc">Amount high to low</button>
+                                    <button type="button" data-select-option="amount-asc">Amount low to high</button>
+                                    <button type="button" data-select-option="name-asc">Name A to Z</button>
+                                    <button type="button" data-select-option="category-asc">Category A to Z</button>
+                                </div>
+                            </div>
+                        </label>
+                        <button type="button" class="btn-primary" id="applySearchBtn">Apply</button>
+                        <button type="button" class="btn-secondary" id="clearSearchBtn">Clear</button>
+                    </div>
+
+                    <div class="search-bar-shell">
+                        <span class="ui-icon icon-search" aria-hidden="true"></span>
+                        <input type="search" id="expenseSearch" autocomplete="off" placeholder="Search across expenses, categories, payment methods, and notes">
+                        <span class="search-live-pill">Live</span>
+                    </div>
+                </section>
+
+                <section class="panel search-results-panel">
+                    <div class="panel-head">
+                        <h2>All expenses</h2>
+                        <span class="dots">...</span>
+                    </div>
+                    <div id="searchResults" class="search-results-list">
+                        <p class="loading">Loading expenses...</p>
+                    </div>
+                </section>
+            </section>
+        </main>
+    </div>
+    <div class="menu-backdrop" id="menuBackdrop" aria-hidden="true"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
