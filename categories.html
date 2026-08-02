@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spendora Categories</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="dashboard-shell">
+        <aside class="side-rail" aria-label="Dashboard navigation">
+            <a class="logo-mark" href="index.html#dashboardTop" aria-label="Expense tracker">
+                <span></span><span></span><span></span><span></span>
+            </a>
+            <a class="rail-button" href="index.html#dashboardTop" title="Dashboard" aria-label="Dashboard"><span class="ui-icon icon-grid"></span></a>
+            <a class="rail-button" href="analytics.html" title="Analytics" aria-label="Analytics"><span class="ui-icon icon-chart"></span></a>
+            <a class="rail-button" href="wallet.html" title="Wallet" aria-label="Wallet"><span class="ui-icon icon-wallet"></span></a>
+            <a class="rail-button" href="search.html" title="Search" aria-label="Search expenses"><span class="ui-icon icon-search"></span></a>
+            <a class="rail-button active" href="categories.html" title="Categories" aria-label="Categories"><span class="ui-icon icon-list"></span></a>
+            <div class="rail-spacer"></div>
+            <button class="rail-button theme-toggle" id="themeToggle" title="Switch theme" aria-label="Switch to dark mode" aria-pressed="false">
+                <span class="ui-icon icon-sun theme-sun" aria-hidden="true"></span>
+                <span class="ui-icon icon-moon theme-moon" aria-hidden="true"></span>
+            </button>
+            <button class="rail-button danger" id="logoutBtn" title="Logout" aria-label="Logout"><span class="ui-icon icon-logout"></span></button>
+        </aside>
+
+        <main class="main-area categories-main" id="categoriesTop">
+            <nav class="topbar">
+                <div class="greeting">
+                    <a class="brand-title-link" href="index.html#dashboardTop" aria-label="Go to dashboard">
+                        <h1 class="brand-word">Spendora</h1>
+                    </a>
+                    <p id="timeGreeting">Here is your spending overview</p>
+                </div>
+                <div class="tabs-sticky-wrap">
+                    <div class="tabs" id="headerTabs" aria-label="Dashboard sections">
+                        <a href="index.html#expenseForm">Add</a>
+                        <a href="analytics.html">Analytics</a>
+                        <a href="wallet.html">Transactions</a>
+                        <a href="search.html">Search</a>
+                        <a class="active" href="categories.html">Categories</a>
+                    </div>
+                </div>
+                <div class="top-actions">
+                    <div class="action-menu">
+                        <button class="round-action" id="notificationBtn" title="Notifications" aria-expanded="false" aria-controls="notificationPanel"><span class="ui-icon icon-bell"></span></button>
+                        <div class="menu-panel" id="notificationPanel">
+                            <strong>Notifications</strong>
+                            <p id="notificationText">Your dashboard is up to date.</p>
+                        </div>
+                    </div>
+                    <div class="action-menu">
+                        <button class="round-action" id="messageBtn" title="Messages" aria-expanded="false" aria-controls="messagePanel"><span class="ui-icon icon-mail"></span></button>
+                        <div class="menu-panel" id="messagePanel">
+                            <strong>Messages</strong>
+                            <p>No messages yet. Expense alerts will appear here.</p>
+                        </div>
+                    </div>
+                    <div class="action-menu">
+                        <button class="avatar" id="profileBtn" aria-label="User profile" aria-expanded="false" aria-controls="profilePanel">
+                            <span class="ui-icon icon-user" id="avatarGuestIcon" aria-hidden="true"></span>
+                            <span id="avatarInitial"></span>
+                        </button>
+                        <div class="menu-panel profile-panel is-signed-out" id="profilePanel">
+                            <strong id="profileName">Login or sign up</strong>
+                            <p id="profileSubtitle">Start your Spendora experience and keep your spending secure.</p>
+                            <button type="button" id="profileAddBtn" hidden>Switch user mode</button>
+                            <button type="button" class="profile-secondary" id="profileLoginBtn">Login or sign up</button>
+                            <button type="button" class="profile-danger" id="profileLogoutBtn" hidden>Logout</button>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <section class="categories-workspace" id="categoriesPage">
+                <section class="analytics-hero categories-hero">
+                    <div>
+                        <span class="analytics-kicker">Categories</span>
+                        <h2>Category intelligence</h2>
+                        <p>Explore where your spending is concentrated, compare category momentum, and watch every expense update the picture live.</p>
+                    </div>
+                    <div class="analytics-range" aria-label="Category range">
+                        <button type="button" data-category-range="3">3M</button>
+                        <button type="button" class="active" data-category-range="6">6M</button>
+                        <button type="button" data-category-range="12">12M</button>
+                        <button type="button" data-category-range="0">All</button>
+                    </div>
+                </section>
+
+                <section class="panel category-control-panel">
+                    <div class="panel-head search-panel-head">
+                        <div>
+                            <h2>Live category filters</h2>
+                            <p>Filter category analytics by search, category, payment method, and sort preference.</p>
+                        </div>
+                        <span class="search-count" id="categoryResultCount">Loading</span>
+                    </div>
+                    <div class="search-filter-toolbar category-filter-toolbar" aria-label="Category filters">
+                        <label class="toolbar-field">
+                            <span>Search</span>
+                            <input type="search" id="categorySearch" autocomplete="off" placeholder="Food, UPI, notes">
+                        </label>
+                        <label class="toolbar-field">
+                            <span>Category</span>
+                            <select id="categoryFocus">
+                                <option value="">All Categories</option>
+                                <option value="Food">Food</option>
+                                <option value="Transport">Transport</option>
+                                <option value="Shopping">Shopping</option>
+                                <option value="Bills">Bills</option>
+                                <option value="Entertainment">Entertainment</option>
+                                <option value="Health">Health</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </label>
+                        <label class="toolbar-field">
+                            <span>Payment</span>
+                            <select id="categoryPayment">
+                                <option value="">All Methods</option>
+                                <option value="Cash">Cash</option>
+                                <option value="Credit Card">Credit Card</option>
+                                <option value="Debit Card">Debit Card</option>
+                                <option value="UPI">UPI</option>
+                                <option value="Net Banking">Net Banking</option>
+                            </select>
+                        </label>
+                        <label class="toolbar-field">
+                            <span>Sort</span>
+                            <select id="categorySort">
+                                <option value="amount-desc">Highest spend</option>
+                                <option value="amount-asc">Lowest spend</option>
+                                <option value="name-asc">Category A to Z</option>
+                                <option value="transactions-desc">Most transactions</option>
+                            </select>
+                        </label>
+                        <button type="button" class="btn-primary" id="applyCategoryFiltersBtn">Apply</button>
+                        <button type="button" class="btn-secondary" id="clearCategoryFiltersBtn">Clear</button>
+                    </div>
+                </section>
+
+                <section class="analytics-stat-grid category-stat-grid" aria-label="Category summary">
+                    <article class="analytics-stat-card">
+                        <span>Total categorized</span>
+                        <strong id="categoryTotalSpend">INR 0.00</strong>
+                        <small id="categoryTotalNote">No expenses yet</small>
+                    </article>
+                    <article class="analytics-stat-card">
+                        <span>Active categories</span>
+                        <strong id="categoryActiveCount">0</strong>
+                        <small id="categoryActiveNote">Waiting for data</small>
+                    </article>
+                    <article class="analytics-stat-card">
+                        <span>Leading category</span>
+                        <strong id="categoryLeader">None</strong>
+                        <small id="categoryLeaderNote">No category leader</small>
+                    </article>
+                    <article class="analytics-stat-card">
+                        <span>Average per category</span>
+                        <strong id="categoryAverageSpend">INR 0.00</strong>
+                        <small id="categoryAverageNote">Across active categories</small>
+                    </article>
+                </section>
+
+                <section class="category-insight-grid">
+                    <div class="category-column category-left-column">
+                        <section class="panel category-flow-panel">
+                            <div class="panel-head">
+                                <div class="panel-title-with-action">
+                                    <button type="button" class="panel-back-button" id="categoryFlowBack" aria-label="Go back" hidden>
+                                        <span class="ui-icon icon-back" aria-hidden="true"></span>
+                                    </button>
+                                    <h2>Category Flow</h2>
+                                </div>
+                                <span class="dots">...</span>
+                            </div>
+                            <div id="categoryFlowVisual" class="category-flow-visual">
+                                <p class="loading">Loading category flow...</p>
+                            </div>
+                        </section>
+
+                        <section class="panel category-trend-panel">
+                            <div class="panel-head">
+                                <h2>Category Trends</h2>
+                                <span class="chart-legend"><i></i> top spend <i></i> second <i></i> third</span>
+                            </div>
+                            <div id="categoryTrendChart" class="category-trend-chart"></div>
+                        </section>
+                    </div>
+
+                    <div class="category-column category-right-column">
+                        <section class="panel category-breakdown-panel">
+                            <div class="panel-head">
+                                <h2>Breakdown</h2>
+                                <span class="dots">...</span>
+                            </div>
+                            <div id="categoryBreakdownList" class="category-breakdown-list"></div>
+                        </section>
+                    </div>
+                </section>
+
+                <section class="panel category-detail-panel">
+                    <div class="panel-head">
+                        <h2>Category Details</h2>
+                        <span class="dots">...</span>
+                    </div>
+                    <div id="categoryDetailCards" class="category-detail-cards"></div>
+                </section>
+            </section>
+        </main>
+    </div>
+    <div class="menu-backdrop" id="menuBackdrop" aria-hidden="true"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
