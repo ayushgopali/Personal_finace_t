@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spendora Login</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="auth-body">
+    <main class="auth-page">
+        <nav class="auth-header" aria-label="Authentication navigation">
+            <a class="auth-brand" href="/">
+                <span class="logo-mark auth-logo"><span></span><span></span><span></span><span></span></span>
+                <span>
+                    <strong class="brand-word">Spendora</strong>
+                    <small>Secure expense workspace</small>
+                </span>
+            </a>
+            <a class="auth-back" href="/">Back to dashboard</a>
+        </nav>
+
+        <section class="auth-grid">
+            <div class="auth-showcase" aria-label="Spendora preview">
+                <div class="auth-mini-window">
+                    <div class="auth-analytics-board">
+                        <div class="motion-chart">
+                            <svg viewBox="0 0 420 190" role="img" aria-label="Animated spending graph">
+                                <line x1="18" x2="402" y1="46" y2="46"></line>
+                                <line x1="18" x2="402" y1="92" y2="92"></line>
+                                <line x1="18" x2="402" y1="138" y2="138"></line>
+                                <path class="motion-line motion-line-primary" d="M18 140 C64 86 106 126 150 98 C202 62 240 72 284 44 C336 12 360 58 402 34"></path>
+                                <path class="motion-line motion-line-secondary" d="M18 112 C66 126 110 72 154 82 C202 94 234 150 284 122 C330 94 362 124 402 88"></path>
+                                <circle class="pulse-dot" cx="284" cy="44" r="5"></circle>
+                                <circle class="pulse-dot secondary" cx="154" cy="82" r="4"></circle>
+                            </svg>
+                        </div>
+
+                        <div class="analytics-bottom">
+                            <div class="pie-card">
+                                <svg class="pie-chart" viewBox="0 0 120 120" aria-label="Category split">
+                                    <circle class="pie-track" cx="60" cy="60" r="40"></circle>
+                                    <circle class="pie-segment pie-primary" cx="60" cy="60" r="40" pathLength="100"></circle>
+                                    <circle class="pie-segment pie-secondary" cx="60" cy="60" r="40" pathLength="100"></circle>
+                                    <circle class="pie-segment pie-tertiary" cx="60" cy="60" r="40" pathLength="100"></circle>
+                                </svg>
+                            </div>
+                            <div class="bar-card">
+                                <span class="moving-bar"><i></i></span>
+                                <span class="moving-bar"><i></i></span>
+                                <span class="moving-bar"><i></i></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <section class="auth-card" aria-labelledby="authTitle">
+                <h1 id="authTitle">Log in</h1>
+                <p id="authIntro">Continue with your secure account to sync Spendora, protect your profile, and keep your dashboard personal.</p>
+
+                <form class="login-form" id="passwordLoginForm" data-auth-mode="login">
+                    <div class="signup-name-grid" id="signupNameFields" hidden>
+                        <label class="auth-field" for="signupFirstName">
+                            <span>First name</span>
+                            <input type="text" id="signupFirstName" autocomplete="given-name" placeholder="Enter first name">
+                        </label>
+                        <label class="auth-field" for="signupSecondName">
+                            <span>Second name</span>
+                            <input type="text" id="signupSecondName" autocomplete="family-name" placeholder="Enter second name">
+                        </label>
+                    </div>
+
+                    <label class="auth-field" for="loginUsername">
+                        <span id="displayNameLabel">Display name</span>
+                        <input type="text" id="loginUsername" autocomplete="username" placeholder="Enter display name" required>
+                    </label>
+
+                    <label class="auth-field" for="signupEmail" id="signupEmailField" hidden>
+                        <span>Email address</span>
+                        <input type="email" id="signupEmail" autocomplete="email" placeholder="Enter email address">
+                    </label>
+
+                    <div class="password-label-row">
+                        <label for="loginPassword">Password</label>
+                        <button type="button" id="forgotPasswordBtn">Forgot password?</button>
+                    </div>
+                    <div class="password-input-wrap">
+                        <input type="password" id="loginPassword" autocomplete="current-password" placeholder="Enter password" required>
+                        <button type="button" id="togglePassword" aria-label="Show password">
+                            <span class="ui-icon icon-eye" aria-hidden="true"></span>
+                        </button>
+                    </div>
+
+                    <label class="auth-field" for="signupConfirmPassword" id="signupConfirmField" hidden>
+                        <span>Confirm password</span>
+                        <div class="password-input-wrap">
+                            <input type="password" id="signupConfirmPassword" autocomplete="new-password" placeholder="Confirm password">
+                            <button type="button" id="toggleConfirmPassword" aria-label="Show confirm password">
+                                <span class="ui-icon icon-eye" aria-hidden="true"></span>
+                            </button>
+                        </div>
+                    </label>
+
+                    <p class="auth-form-message" id="authFormMessage" role="status" aria-live="polite" hidden></p>
+
+                    <button class="login-submit" id="authSubmitButton" type="submit">Login</button>
+                    <button class="signup-link" id="signupButton" type="button">Sign up</button>
+
+                    <div class="auth-divider" id="oauthDivider"><span>or</span></div>
+
+                    <button class="oauth-button" id="oauthButton" type="button">
+                        <span class="provider-mark" aria-hidden="true">G</span>
+                        <span id="oauthButtonText">Continue with OAuth2</span>
+                    </button>
+                </form>
+            </section>
+        </section>
+    </main>
+
+    <div class="auth-verify-overlay" id="emailVerifyOverlay" hidden>
+        <section class="auth-verify-modal" role="dialog" aria-modal="true" aria-labelledby="verifyTitle">
+            <button type="button" class="auth-verify-close" id="verifyCloseBtn" aria-label="Close verification">×</button>
+            <span class="verify-pill">Secure check</span>
+            <h2 id="verifyTitle">Verify email address</h2>
+            <p>Confirm this email with your device fingerprint or passkey before creating your Spendora account.</p>
+            <div class="verify-email-row">
+                <span class="ui-icon icon-mail" aria-hidden="true"></span>
+                <strong id="verifyEmailText">email@example.com</strong>
+            </div>
+            <button type="button" class="login-submit verify-passkey-button" id="verifyPasskeyBtn">
+                <span class="ui-icon icon-fingerprint" aria-hidden="true"></span>
+                Verify with fingerprint or passkey
+            </button>
+            <p class="auth-form-message verify-message" id="verifyMessage" role="status" aria-live="polite" hidden></p>
+        </section>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="login.js"></script>
+</body>
+</html>
