@@ -12,10 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function applySavedAuthTheme() {
-    const savedTheme = localStorage.getItem('spendora-theme');
-    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const theme = savedTheme || (prefersDark ? 'dark' : 'light');
-    document.body.classList.toggle('theme-dark', theme === 'dark');
+    document.body.classList.remove('theme-dark');
 }
 
 async function initOAuthPage() {

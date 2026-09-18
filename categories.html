@@ -12,16 +12,14 @@
             <a class="logo-mark" href="index.html#dashboardTop" aria-label="Expense tracker">
                 <span></span><span></span><span></span><span></span>
             </a>
-            <a class="rail-button" href="index.html#dashboardTop" title="Dashboard" aria-label="Dashboard"><span class="ui-icon icon-grid"></span></a>
-            <a class="rail-button" href="analytics.html" title="Analytics" aria-label="Analytics"><span class="ui-icon icon-chart"></span></a>
-            <a class="rail-button" href="wallet.html" title="Wallet" aria-label="Wallet"><span class="ui-icon icon-wallet"></span></a>
-            <a class="rail-button" href="search.html" title="Search" aria-label="Search expenses"><span class="ui-icon icon-search"></span></a>
-            <a class="rail-button active" href="categories.html" title="Categories" aria-label="Categories"><span class="ui-icon icon-list"></span></a>
+            <nav class="rail-nav" aria-label="Main navigation">
+                <a class="rail-button" href="index.html#dashboardTop" title="Dashboard" aria-label="Dashboard"><span class="ui-icon icon-grid"></span></a>
+                <a class="rail-button" href="analytics.html" title="Analytics" aria-label="Analytics"><span class="ui-icon icon-chart"></span></a>
+                <a class="rail-button" href="wallet.html" title="Wallet" aria-label="Wallet"><span class="ui-icon icon-wallet"></span></a>
+                <a class="rail-button" href="search.html" title="Search" aria-label="Search expenses"><span class="ui-icon icon-search"></span></a>
+                <a class="rail-button active" href="categories.html" title="Categories" aria-label="Categories"><span class="ui-icon icon-list"></span></a>
+            </nav>
             <div class="rail-spacer"></div>
-            <button class="rail-button theme-toggle" id="themeToggle" title="Switch theme" aria-label="Switch to dark mode" aria-pressed="false">
-                <span class="ui-icon icon-sun theme-sun" aria-hidden="true"></span>
-                <span class="ui-icon icon-moon theme-moon" aria-hidden="true"></span>
-            </button>
             <button class="rail-button danger" id="logoutBtn" title="Logout" aria-label="Logout"><span class="ui-icon icon-logout"></span></button>
         </aside>
 
@@ -33,14 +31,21 @@
                     </a>
                     <p id="timeGreeting">Here is your spending overview</p>
                 </div>
-                <div class="tabs-sticky-wrap">
-                    <div class="tabs" id="headerTabs" aria-label="Dashboard sections">
-                        <a href="index.html#expenseForm">Add</a>
-                        <a href="analytics.html">Analytics</a>
-                        <a href="wallet.html">Transactions</a>
-                        <a href="search.html">Search</a>
-                        <a class="active" href="categories.html">Categories</a>
-                    </div>
+                <div class="mobile-top-nav-wrap">
+                    <nav class="mobile-nav-top-left" aria-label="Sections navigation">
+                        <a class="mobile-nav-pill" href="analytics.html" title="Analytics" aria-label="Analytics">
+                            <span class="ui-icon icon-chart" aria-hidden="true"></span>
+                            <span>Analytics</span>
+                        </a>
+                        <a class="mobile-nav-pill" href="wallet.html" title="Wallet" aria-label="Wallet">
+                            <span class="ui-icon icon-wallet" aria-hidden="true"></span>
+                            <span>Wallet</span>
+                        </a>
+                        <a class="mobile-nav-pill active" href="categories.html" title="Categories" aria-label="Categories">
+                            <span class="ui-icon icon-list" aria-hidden="true"></span>
+                            <span>Categories</span>
+                        </a>
+                    </nav>
                 </div>
                 <div class="top-actions">
                     <div class="action-menu">
@@ -67,7 +72,6 @@
                             <p id="profileSubtitle">Start your Spendora experience and keep your spending secure.</p>
                             <button type="button" id="profileAddBtn" hidden>Switch user mode</button>
                             <button type="button" class="profile-secondary" id="profileLoginBtn">Login or sign up</button>
-                            <button type="button" class="profile-danger" id="profileLogoutBtn" hidden>Logout</button>
                         </div>
                     </div>
                 </div>
@@ -103,36 +107,57 @@
                         </label>
                         <label class="toolbar-field">
                             <span>Category</span>
-                            <select id="categoryFocus">
-                                <option value="">All Categories</option>
-                                <option value="Food">Food</option>
-                                <option value="Transport">Transport</option>
-                                <option value="Shopping">Shopping</option>
-                                <option value="Bills">Bills</option>
-                                <option value="Entertainment">Entertainment</option>
-                                <option value="Health">Health</option>
-                                <option value="Other">Other</option>
-                            </select>
+                            <div class="spendora-select" data-select-root data-placeholder="All Categories">
+                                <input type="hidden" id="categoryFocus" value="">
+                                <button type="button" class="spendora-select-trigger" data-select-trigger aria-expanded="false">
+                                    <span data-select-label>All Categories</span>
+                                    <i aria-hidden="true"></i>
+                                </button>
+                                <div class="spendora-select-menu" data-select-menu hidden>
+                                    <button type="button" class="is-placeholder is-selected" data-select-option="" aria-selected="true">All Categories</button>
+                                    <button type="button" data-select-option="Food">Food</button>
+                                    <button type="button" data-select-option="Transport">Transport</button>
+                                    <button type="button" data-select-option="Shopping">Shopping</button>
+                                    <button type="button" data-select-option="Bills">Bills</button>
+                                    <button type="button" data-select-option="Entertainment">Entertainment</button>
+                                    <button type="button" data-select-option="Health">Health</button>
+                                    <button type="button" data-select-option="Other">Other</button>
+                                </div>
+                            </div>
                         </label>
                         <label class="toolbar-field">
                             <span>Payment</span>
-                            <select id="categoryPayment">
-                                <option value="">All Methods</option>
-                                <option value="Cash">Cash</option>
-                                <option value="Credit Card">Credit Card</option>
-                                <option value="Debit Card">Debit Card</option>
-                                <option value="UPI">UPI</option>
-                                <option value="Net Banking">Net Banking</option>
-                            </select>
+                            <div class="spendora-select" data-select-root data-placeholder="All Methods">
+                                <input type="hidden" id="categoryPayment" value="">
+                                <button type="button" class="spendora-select-trigger" data-select-trigger aria-expanded="false">
+                                    <span data-select-label>All Methods</span>
+                                    <i aria-hidden="true"></i>
+                                </button>
+                                <div class="spendora-select-menu" data-select-menu hidden>
+                                    <button type="button" class="is-placeholder is-selected" data-select-option="" aria-selected="true">All Methods</button>
+                                    <button type="button" data-select-option="Cash">Cash</button>
+                                    <button type="button" data-select-option="Credit Card">Credit Card</button>
+                                    <button type="button" data-select-option="Debit Card">Debit Card</button>
+                                    <button type="button" data-select-option="UPI">UPI</button>
+                                    <button type="button" data-select-option="Net Banking">Net Banking</button>
+                                </div>
+                            </div>
                         </label>
                         <label class="toolbar-field">
                             <span>Sort</span>
-                            <select id="categorySort">
-                                <option value="amount-desc">Highest spend</option>
-                                <option value="amount-asc">Lowest spend</option>
-                                <option value="name-asc">Category A to Z</option>
-                                <option value="transactions-desc">Most transactions</option>
-                            </select>
+                            <div class="spendora-select" data-select-root data-placeholder="Highest spend">
+                                <input type="hidden" id="categorySort" value="amount-desc">
+                                <button type="button" class="spendora-select-trigger" data-select-trigger aria-expanded="false">
+                                    <span data-select-label>Highest spend</span>
+                                    <i aria-hidden="true"></i>
+                                </button>
+                                <div class="spendora-select-menu" data-select-menu hidden>
+                                    <button type="button" class="is-selected" data-select-option="amount-desc" aria-selected="true">Highest spend</button>
+                                    <button type="button" data-select-option="amount-asc">Lowest spend</button>
+                                    <button type="button" data-select-option="name-asc">Category A to Z</button>
+                                    <button type="button" data-select-option="transactions-desc">Most transactions</button>
+                                </div>
+                            </div>
                         </label>
                         <button type="button" class="btn-primary" id="applyCategoryFiltersBtn">Apply</button>
                         <button type="button" class="btn-secondary" id="clearCategoryFiltersBtn">Clear</button>
@@ -208,6 +233,24 @@
                 </section>
             </section>
         </main>
+
+        <!-- Mobile/Tablet Floating Responsive Navigation Shell -->
+        <nav class="mobile-nav-bottom-center" aria-label="Primary navigation">
+            <a class="mobile-nav-btn" href="index.html#dashboardTop" title="Home" aria-label="Home">
+                <span class="ui-icon icon-grid" aria-hidden="true"></span>
+            </a>
+            <a class="mobile-nav-btn" href="search.html" title="Search" aria-label="Search">
+                <span class="ui-icon icon-search" aria-hidden="true"></span>
+            </a>
+            <button type="button" class="mobile-nav-btn mobile-profile-btn" id="mobileProfileBtn" title="Profile" aria-label="Profile" aria-expanded="false" aria-controls="profilePanel">
+                <span class="ui-icon icon-user" aria-hidden="true"></span>
+            </button>
+        </nav>
+        <div class="mobile-nav-bottom-right">
+            <button type="button" class="mobile-logout-btn" id="mobileLogoutBtn" title="Logout" aria-label="Logout">
+                <span class="ui-icon icon-logout" aria-hidden="true"></span>
+            </button>
+        </div>
     </div>
     <div class="menu-backdrop" id="menuBackdrop" aria-hidden="true"></div>
 

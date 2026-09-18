@@ -323,13 +323,13 @@ async function connectDB() {
     const categoryCount = await categoriesCollection.countDocuments();
     if (categoryCount === 0) {
       await categoriesCollection.insertMany([
-        { name: 'Food', budget: 10000, color: '#FF6B6B', icon: 'ðŸ”' },
-        { name: 'Transport', budget: 5000, color: '#4ECDC4', icon: 'ðŸš—' },
-        { name: 'Shopping', budget: 8000, color: '#45B7D1', icon: 'ðŸ›ï¸' },
-        { name: 'Bills', budget: 7000, color: '#FFA07A', icon: 'ðŸ’¡' },
-        { name: 'Entertainment', budget: 4000, color: '#98D8C8', icon: 'ðŸŽ¬' },
-        { name: 'Health', budget: 6000, color: '#F7DC6F', icon: 'ðŸ¥' },
-        { name: 'Other', budget: 3000, color: '#BB8FCE', icon: 'ðŸ“¦' }
+        { name: 'Food', budget: 10000, color: '#16A34A', icon: '🍔' },
+        { name: 'Transport', budget: 5000, color: '#EA580C', icon: '🚗' },
+        { name: 'Shopping', budget: 8000, color: '#7C3AED', icon: '🛍️' },
+        { name: 'Bills', budget: 7000, color: '#2563EB', icon: '💡' },
+        { name: 'Entertainment', budget: 4000, color: '#D97706', icon: '🎬' },
+        { name: 'Health', budget: 6000, color: '#DC2626', icon: '🏥' },
+        { name: 'Other', budget: 3000, color: '#64748B', icon: '📦' }
       ]);
       console.log('âœ… Default categories created');
     }
@@ -730,8 +730,16 @@ app.get('/api/wallet/photo', async (req, res) => {
       return;
     }
 
+    const query = {
+      $or: [
+        { userId: session.user.id },
+        ...(session.user.email ? [{ emailLower: normalizeEmail(session.user.email) }] : [])
+      ]
+    };
+
     const userRecord = await usersCollection.findOne(
       { userId: session.user.id },
+      query,
       { projection: { walletPhoto: 1 } }
     );
 
@@ -745,6 +753,7 @@ app.get('/api/wallet/photo', async (req, res) => {
 });
 
 app.put('/api/wallet/photo', async (req, res) => {
+const handleSaveWalletPhoto = async (req, res) => {
   try {
     const session = requireSession(req, res);
     if (!session) return;
@@ -765,6 +774,40 @@ app.put('/api/wallet/photo', async (req, res) => {
           walletPhoto: photo,
           walletPhotoUpdatedAt: new Date(),
           updatedAt: new Date()
+    const query = {
+      $or: [
+        { userId: session.user.id },
+        ...(session.user.email ? [{ emailLower: normalizeEmail(session.user.email) }] : [])
+      ]
+    };
+
+    const existingUser = await usersCollection.findOne(query);
+
+    if (existingUser) {
+      await usersCollection.updateOne(
+        { _id: existingUser._id },
+        {
+          $set: {
+            walletPhoto: photo,
+            walletPhotoUpdatedAt: new Date(),
+            updatedAt: new Date()
+          }
+        }
+      );
+    } else {
+      await usersCollection.updateOne(
+        { userId: session.user.id },
+        {
+          $set: {
+            userId: session.user.id,
+            user: session.user,
+            walletPhoto: photo,
+            walletPhotoUpdatedAt: new Date(),
+            updatedAt: new Date()
+          },
+          $setOnInsert: {
+            createdAt: new Date()
+          }
         },
         $setOnInsert: {
           createdAt: new Date()
@@ -772,23 +815,40 @@ app.put('/api/wallet/photo', async (req, res) => {
       },
       { upsert: true }
     );
+        { upsert: true }
+      );
+    }
 
     res.json({
       success: true,
       message: 'Wallet photo saved'
+      message: 'Wallet photo saved',
+      photo
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
 });
+};
+
+app.put('/api/wallet/photo', handleSaveWalletPhoto);
+app.post('/api/wallet/photo', handleSaveWalletPhoto);
 
 app.delete('/api/wallet/photo', async (req, res) => {
   try {
     const session = requireSession(req, res);
     if (!session) return;
 
+    const query = {
+      $or: [
+        { userId: session.user.id },
+        ...(session.user.email ? [{ emailLower: normalizeEmail(session.user.email) }] : [])
+      ]
+    };
+
     await usersCollection.updateOne(
       { userId: session.user.id },
+      query,
       {
         $set: {
           user: session.user,
@@ -950,7 +1010,7 @@ app.post('/api/categories', async (req, res) => {
     const category = {
       name: req.body.name,
       budget: parseFloat(req.body.budget) || 0,
-      color: req.body.color || '#3498db',
+      color: req.body.color || '#8A9DA0',
       icon: req.body.icon || 'ðŸ“¦'
     };
     

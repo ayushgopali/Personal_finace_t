@@ -15,6 +15,111 @@ let walletCardRuntime = {
     status: 'Ready'
 };
 
+// ==================== CATEGORY SYSTEM ====================
+const CATEGORY_THEMES = {
+    Food: {
+        primary: '#16A34A',
+        bg: '#ECFDF3',
+        hover: '#DCFCE7'
+    },
+    Transport: {
+        primary: '#EA580C',
+        bg: '#FFF7ED',
+        hover: '#FFEDD5'
+    },
+    Shopping: {
+        primary: '#7C3AED',
+        bg: '#F5F3FF',
+        hover: '#EDE9FE'
+    },
+    Bills: {
+        primary: '#2563EB',
+        bg: '#EFF6FF',
+        hover: '#DBEAFE'
+    },
+    Entertainment: {
+        primary: '#D97706',
+        bg: '#FFFBEB',
+        hover: '#FEF3C7'
+    },
+    Health: {
+        primary: '#DC2626',
+        bg: '#FEF2F2',
+        hover: '#FEE2E2'
+    },
+    Other: {
+        primary: '#64748B',
+        bg: '#F8FAFC',
+        hover: '#F1F5F9'
+    }
+};
+
+const DEFAULT_CATEGORY_THEME = {
+    primary: '#64748B',
+    bg: '#F8FAFC',
+    hover: '#F1F5F9'
+};
+
+function getCategoryTheme(category) {
+    return CATEGORY_THEMES[category] || DEFAULT_CATEGORY_THEME;
+}
+
+function getCategoryPalette() {
+    return ['#16A34A', '#EA580C', '#7C3AED', '#2563EB', '#D97706', '#DC2626', '#64748B'];
+}
+
+function getCategoryColor(category, fallbackIndex = 0) {
+    if (category && CATEGORY_THEMES[category]) {
+        return CATEGORY_THEMES[category].primary;
+    }
+    const palette = getCategoryPalette();
+    return DEFAULT_CATEGORY_THEME.primary || palette[fallbackIndex % palette.length];
+}
+
+// ==================== PAYMENT METHOD SYSTEM ====================
+const PAYMENT_METHOD_THEMES = {
+    Cash: {
+        primary: '#0891B2',
+        hoverBg: '#CFFAFE',
+        hoverText: '#0E7490'
+    },
+    'Credit Card': {
+        primary: '#C026D3',
+        hoverBg: '#FAE8FF',
+        hoverText: '#A21CAF'
+    },
+    'Debit Card': {
+        primary: '#92400E',
+        hoverBg: '#FEF3C7',
+        hoverText: '#78350F'
+    },
+    UPI: {
+        primary: '#EA580C',
+        hoverBg: '#FFEDD5',
+        hoverText: '#C2410C'
+    },
+    'Net Banking': {
+        primary: '#115E59',
+        hoverBg: '#CCFBF1',
+        hoverText: '#134E4A'
+    }
+};
+
+const DEFAULT_PAYMENT_METHOD_THEME = {
+    primary: '#475569',
+    hoverBg: '#F1F5F9',
+    hoverText: '#334155'
+};
+
+
+function getPaymentMethodTheme(paymentMethod) {
+    return PAYMENT_METHOD_THEMES[paymentMethod] || DEFAULT_PAYMENT_METHOD_THEME;
+}
+
+function getPaymentMethodColor(paymentMethod) {
+    return getPaymentMethodTheme(paymentMethod).primary;
+}
+
 // Set today's date as default
 const dateInput = document.getElementById('date');
 if (dateInput) {
@@ -23,7 +128,7 @@ if (dateInput) {
 
 // Load data on page load
 document.addEventListener('DOMContentLoaded', () => {
-    initThemeToggle();
+    document.body.classList.remove('theme-dark');
     initSpendoraSelectControls();
     initDatePickerControl();
     updateTimeGreeting();
@@ -119,6 +224,30 @@ function syncSpendoraSelect(root) {
 
     if (label) label.textContent = selected?.textContent?.trim() || placeholder;
     trigger?.classList.toggle('has-value', Boolean(value));
+
+    // Category Select Sync
+    const isCategorySelect = input?.id === 'category' || input?.id === 'searchCategory' || input?.id === 'categoryFocus' || root.dataset.placeholder === 'Category';
+    if (isCategorySelect) {
+        if (value && typeof getCategoryColor === 'function') {
+            trigger?.setAttribute('data-category', value);
+            trigger?.style.setProperty('--category-selected-color', getCategoryColor(value));
+        } else {
+            trigger?.removeAttribute('data-category');
+            trigger?.style.removeProperty('--category-selected-color');
+        }
+    }
+
+    // Payment Method Select Sync
+    const isPaymentSelect = input?.id === 'paymentMethod' || input?.id === 'searchPaymentMethod' || input?.id === 'categoryPayment' || root.dataset.placeholder === 'Payment method';
+    if (isPaymentSelect) {
+        if (value && typeof getPaymentMethodColor === 'function') {
+            trigger?.setAttribute('data-payment-method', value);
+            trigger?.style.setProperty('--payment-selected-color', getPaymentMethodColor(value));
+        } else {
+            trigger?.removeAttribute('data-payment-method');
+            trigger?.style.removeProperty('--payment-selected-color');
+        }
+    }
 
     options.forEach(option => {
         const isSelected = (option.dataset.selectOption || '') === value;
@@ -432,61 +561,11 @@ function initDashboardPage() {
 }
 
 function initThemeToggle() {
-    const toggle = document.getElementById('themeToggle');
-    const savedTheme = localStorage.getItem('spendora-theme');
-    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
-
-    applyTheme(initialTheme, false);
-
-    toggle?.addEventListener('click', () => {
-        const nextTheme = document.body.classList.contains('theme-dark') ? 'light' : 'dark';
-        applyTheme(nextTheme, true);
-    });
+    document.body.classList.remove('theme-dark');
 }
 
-function applyTheme(theme, animate) {
-    const isDark = theme === 'dark';
-    const toggle = document.getElementById('themeToggle');
-
-    function commitTheme() {
-        document.body.classList.toggle('theme-dark', isDark);
-        localStorage.setItem('spendora-theme', theme);
-        if (toggle) {
-            toggle.setAttribute('aria-pressed', String(isDark));
-            toggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
-            toggle.setAttribute('title', isDark ? 'Switch to light mode' : 'Switch to dark mode');
-        }
-    }
-
-    if (!animate || !window.gsap) {
-        commitTheme();
-        return;
-    }
-
-    const sunIcon = toggle?.querySelector('.theme-sun');
-    const moonIcon = toggle?.querySelector('.theme-moon');
-    const themeIcons = [sunIcon, moonIcon].filter(Boolean);
-    const activeIcon = isDark ? moonIcon : sunIcon;
-
-    gsap.killTweensOf([toggle, ...themeIcons].filter(Boolean));
-    gsap.set(themeIcons, { clearProps: 'all' });
-    commitTheme();
-
-    if (!activeIcon) return;
-
-    gsap.fromTo(
-        activeIcon,
-        { rotate: isDark ? -90 : 90, scale: 0.45, opacity: 0 },
-        {
-            rotate: 0,
-            scale: 1,
-            opacity: 1,
-            duration: 0.38,
-            ease: 'back.out(2.2)',
-            onComplete: () => gsap.set(themeIcons, { clearProps: 'all' })
-        }
-    );
+function applyTheme() {
+    document.body.classList.remove('theme-dark');
 }
 
 async function initAuthState() {
@@ -824,8 +903,8 @@ function displayExpenses(expenses) {
                                 ${escapeHtml(expense.description)}
                             </span>
                         </td>
-                        <td data-label="Category"><span class="category-name">${getCategoryIcon(expense.category)} ${escapeHtml(expense.category)}</span></td>
-                        <td data-label="Payment">${escapeHtml(expense.paymentMethod)}</td>
+                        <td data-label="Category"><span class="category-name" data-category="${escapeHtml(expense.category || 'Other')}">${getCategoryIcon(expense.category)} ${escapeHtml(expense.category)}</span></td>
+                        <td data-label="Payment"><span class="payment-method-text" data-payment-method="${escapeHtml(expense.paymentMethod || 'Unknown')}">${escapeHtml(expense.paymentMethod || 'Unknown')}</span></td>
                         <td data-label="Date">${formatDate(expense.date)}</td>
                         <td data-label="Amount">INR ${expense.amount.toFixed(2)}</td>
                         <td data-label="Actions">
@@ -1043,8 +1122,8 @@ function renderSearchExpenseRow(expense) {
                     ${notes}
                 </div>
             </div>
-            <div><span class="category-name">${getCategoryIcon(category)} ${escapeHtml(category)}</span></div>
-            <div>${escapeHtml(paymentMethod)}</div>
+            <div><span class="category-name" data-category="${escapeHtml(category)}">${getCategoryIcon(category)} ${escapeHtml(category)}</span></div>
+            <div><span class="payment-method-text" data-payment-method="${escapeHtml(paymentMethod)}">${escapeHtml(paymentMethod)}</span></div>
             <div>${formatDate(expense.date)}</div>
             <div class="search-amount">INR ${amount.toFixed(2)}</div>
             <div class="expense-actions">
@@ -1253,8 +1332,8 @@ function renderAnalyticsTrend(expenses) {
         <svg class="analytics-trend-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Analytics spending trend chart">
             <defs>
                 <linearGradient id="analyticsAreaGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="var(--blue)" stop-opacity="0.22"></stop>
-                    <stop offset="100%" stop-color="var(--blue)" stop-opacity="0"></stop>
+                    <stop offset="0%" stop-color="#2563EB" stop-opacity="0.12"></stop>
+                    <stop offset="100%" stop-color="#2563EB" stop-opacity="0"></stop>
                 </linearGradient>
             </defs>
             <g>${gridLines}</g>
@@ -1708,18 +1787,18 @@ function animateCategoriesPage() {
 }
 
 function getCategoryPalette() {
-    return ['#4d38dc', '#ff4f73', '#2eb84f', '#ff9f1c', '#22a6f2', '#8b5cf6', '#657085'];
+    return ['#2563EB', '#16A34A', '#EA580C', '#7C3AED', '#D97706', '#DC2626', '#64748B'];
 }
 
 function getCategoryColor(category, fallbackIndex = 0) {
     const colors = {
-        Bills: '#4d38dc',
-        Shopping: '#ff4f73',
-        Transport: '#2eb84f',
-        Food: '#ff9f1c',
-        Health: '#22a6f2',
-        Entertainment: '#8b5cf6',
-        Other: '#657085'
+        Bills: '#2563EB',
+        Food: '#16A34A',
+        Transport: '#EA580C',
+        Shopping: '#7C3AED',
+        Entertainment: '#D97706',
+        Health: '#DC2626',
+        Other: '#64748B'
     };
     const palette = getCategoryPalette();
     return colors[category] || palette[fallbackIndex % palette.length];
@@ -1746,6 +1825,9 @@ function initWalletPage() {
     setupWalletCardEditor();
     setupWalletPhotoUpload();
     renderWalletCards();
+    try {
+        localStorage.removeItem('spendora-wallet-photo');
+    } catch {}
     syncWalletPhotoState();
     loadWalletBudgetData();
 
@@ -2035,7 +2117,7 @@ function getBudgetStatus(percent, budget) {
     return {
         className: 'budget-within',
         label: 'Within budget',
-        shortLabel: 'Healthy',
+        shortLabel: 'Health',
         message: 'You are within budget. Nice and steady.'
     };
 }
@@ -2087,6 +2169,9 @@ function setupWalletCardEditor() {
     const openEditor = () => {
         closeWalletOptionsMenu();
         populateWalletCardEditor(select.value || 'stripe');
+        if (typeof setSpendoraSelectValue === 'function') {
+            setSpendoraSelectValue('walletCardSelect', select.value || 'stripe');
+        }
         modal.classList.add('is-open');
         modal.setAttribute('aria-hidden', 'false');
 
@@ -2119,21 +2204,21 @@ function getWalletCardDefaults() {
 
     return {
         stripe: {
-            name: 'Spendora',
+            name: 'SPENDORA',
             label: 'Holder',
             info: displayName,
             number: '5524 9910 4242'
         },
         wise: {
-            name: 'Budget',
+            name: 'CRYPTEX.',
             label: 'Month',
             info: walletCardRuntime.monthLabel || 'LIVE',
             number: '9012 4432 8810'
         },
         payflow: {
-            name: 'PayFlow',
-            label: 'Status',
-            info: walletCardRuntime.status || 'Ready',
+            name: 'PAYFLOW.',
+            label: 'STATUS',
+            info: walletCardRuntime.status || 'Health',
             number: '3312 0045 0094'
         }
     };
@@ -2210,6 +2295,9 @@ function resetWalletCardEdit() {
     localStorage.setItem('spendora-wallet-cards', JSON.stringify(stored));
     renderWalletCards();
     populateWalletCardEditor(select.value);
+    if (typeof setSpendoraSelectValue === 'function') {
+        setSpendoraSelectValue('walletCardSelect', select.value);
+    }
     showNotification('Wallet card reset', 'info');
 }
 
@@ -2221,21 +2309,19 @@ function formatWalletCardMask(number) {
 
 function clearWalletPhotoView() {
     walletPhotoCache = '';
-    localStorage.removeItem('spendora-wallet-photo');
-    renderWalletPhoto();
+    try {
+        localStorage.removeItem('spendora-wallet-photo');
+    } catch {}
+    renderWalletPhoto(false);
 }
 
 async function syncWalletPhotoState() {
     if (!document.getElementById('idWindow')) return;
 
     if (!isAuthenticated) {
-        clearWalletPhotoView();
+        renderWalletPhoto(false);
         return;
     }
-
-    walletPhotoCache = '';
-    localStorage.removeItem('spendora-wallet-photo');
-    renderWalletPhoto();
 
     try {
         const response = await fetch(`${API_URL}/wallet/photo`, {
@@ -2252,22 +2338,17 @@ async function syncWalletPhotoState() {
             return;
         }
 
-        if (result.photo) {
+        if (response.ok && result.authenticated && result.photo) {
             walletPhotoCache = result.photo;
-            try {
-                localStorage.setItem('spendora-wallet-photo', result.photo);
-            } catch {
-                localStorage.removeItem('spendora-wallet-photo');
-            }
+            renderWalletPhoto(false);
         } else {
             walletPhotoCache = '';
-            localStorage.removeItem('spendora-wallet-photo');
+            renderWalletPhoto(false);
         }
-
-        renderWalletPhoto(Boolean(result.photo));
     } catch (error) {
         console.error('Error loading wallet photo:', error);
-        renderWalletPhoto();
+        walletPhotoCache = '';
+        renderWalletPhoto(false);
     }
 }
 
@@ -2330,10 +2411,8 @@ function loadImageElement(source) {
 function storeWalletPhotoLocally(photo) {
     walletPhotoCache = photo;
     try {
-        localStorage.setItem('spendora-wallet-photo', photo);
-    } catch {
         localStorage.removeItem('spendora-wallet-photo');
-    }
+    } catch {}
 }
 
 async function prepareWalletPhoto(file) {
@@ -2444,19 +2523,15 @@ function setupWalletPhotoUpload() {
             try {
                 photo = await prepareWalletPhoto(file);
                 await saveWalletPhotoToServer(photo);
-                storeWalletPhotoLocally(photo);
+                walletPhotoCache = photo;
+                try {
+                    localStorage.removeItem('spendora-wallet-photo');
+                } catch {}
                 renderWalletPhoto(true);
                 closeUploadModal();
                 showNotification('Wallet ID photo saved', 'success');
             } catch (error) {
-                if (photo) {
-                    storeWalletPhotoLocally(photo);
-                    renderWalletPhoto(true);
-                    closeUploadModal();
-                    showNotification('Photo added locally. Restart the Node server to sync it to MongoDB.', 'info');
-                } else {
-                    showNotification(error.message || 'Wallet photo could not be saved.', 'error');
-                }
+                showNotification(error.message || 'Wallet photo could not be saved.', 'error');
             }
         };
 
@@ -2513,8 +2588,10 @@ function renderWalletPhoto(animate = false) {
     const placeholder = document.getElementById('idPlaceholder');
     if (!windowElement) return;
 
-    const photo = walletPhotoCache || localStorage.getItem('spendora-wallet-photo');
     let image = windowElement.querySelector('img');
+    const photo = (walletPhotoCache && typeof walletPhotoCache === 'string' && walletPhotoCache.trim() !== '' && walletPhotoCache !== 'none')
+        ? walletPhotoCache
+        : '';
 
     if (!photo) {
         if (image) image.remove();
@@ -2524,6 +2601,9 @@ function renderWalletPhoto(animate = false) {
 
     if (!image) {
         image = document.createElement('img');
+        image.className = 'wallet-earth-img';
+        image.id = 'walletEarthImg';
+        image.alt = 'Wallet ID photo';
         windowElement.appendChild(image);
     }
 
@@ -2685,7 +2765,8 @@ function getCategoryIcon(category) {
         'Other': 'other'
     };
     const icon = icons[category] || 'other';
-    return `<span class="category-icon icon-${icon}" aria-hidden="true"></span>`;
+    const color = getCategoryColor(category);
+    return `<span class="category-icon icon-${icon}" style="color: ${color};" aria-hidden="true"></span>`;
 }
 
 function getInitials(text = '') {
@@ -2797,10 +2878,10 @@ function renderCategoryInsight(expenses) {
         const percent = grandTotal ? Math.round((amount / grandTotal) * 100) : 0;
         return `
             <div class="insight-row">
-                <div class="insight-badge">${category.slice(0, 2).toUpperCase()}</div>
+                <div class="insight-badge" style="background: ${getCategoryColor(category)}; color: #FFFFFF;">${category.slice(0, 2).toUpperCase()}</div>
                 <div>
                     <div class="insight-name">${escapeHtml(category)}</div>
-                    <div class="insight-bar"><span style="width: ${percent}%"></span></div>
+                    <div class="insight-bar"><span style="width: ${percent}%; background: ${getCategoryColor(category)};"></span></div>
                 </div>
                 <div class="insight-percent">${percent}%</div>
             </div>
@@ -2952,6 +3033,7 @@ function initHeaderControls() {
     setupMenu('notificationBtn', 'notificationPanel');
     setupMenu('messageBtn', 'messagePanel');
     setupMenu('profileBtn', 'profilePanel');
+    setupMenu('mobileProfileBtn', 'profilePanel');
     document.getElementById('menuBackdrop')?.addEventListener('click', closeMenus);
 
     document.getElementById('profileAddBtn')?.addEventListener('click', () => {
@@ -2962,9 +3044,10 @@ function initHeaderControls() {
     document.getElementById('profileLoginBtn')?.addEventListener('click', loginWithOAuth);
     document.getElementById('profileLogoutBtn')?.addEventListener('click', requestLogout);
     document.getElementById('logoutBtn')?.addEventListener('click', requestLogout);
+    document.getElementById('mobileLogoutBtn')?.addEventListener('click', requestLogout);
 
     document.addEventListener('click', event => {
-        if (!event.target.closest('.action-menu')) {
+        if (!event.target.closest('.action-menu') && !event.target.closest('#mobileProfileBtn')) {
             closeMenus();
         }
     });
@@ -2977,130 +3060,106 @@ function initHeaderControls() {
 }
 
 function initLiquidGlassNav() {
-    document.querySelectorAll('.tabs').forEach(tabs => {
-        if (tabs.dataset.liquidReady === 'true') return;
+    const railNav = document.querySelector('.rail-nav');
+    if (!railNav) return;
+    if (railNav.dataset.liquidReady === 'true') return;
 
-        tabs.dataset.liquidReady = 'true';
-        tabs.classList.add('liquid-glass-tabs');
+    railNav.dataset.liquidReady = 'true';
+    const sideRail = railNav.closest('.side-rail') || railNav;
+    sideRail.classList.add('liquid-rail-ready');
 
-        const indicator = document.createElement('span');
-        indicator.className = 'liquid-glass-indicator';
-        indicator.setAttribute('aria-hidden', 'true');
-        tabs.prepend(indicator);
+    const indicator = document.createElement('span');
+    indicator.className = 'rail-indicator';
+    indicator.setAttribute('aria-hidden', 'true');
+    railNav.prepend(indicator);
 
-        const links = [...tabs.querySelectorAll('a')];
-        const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-        let settleTimer = null;
+    const buttons = [...railNav.querySelectorAll('.rail-button:not(.danger):not(.theme-toggle)')];
+    if (!buttons.length) return;
 
-        const positionIndicator = (link, immediate = false) => {
-            if (!link) return;
+    const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
-            const target = {
-                x: link.offsetLeft,
-                y: link.offsetTop,
-                width: link.offsetWidth,
-                height: link.offsetHeight
-            };
+    const positionIndicator = (btn, immediate = false) => {
+        if (!btn) return;
 
-            if (window.gsap && !reduceMotion) {
-                gsap.killTweensOf(indicator);
-                if (!immediate) gsap.set(indicator, { scaleX: 1.035, scaleY: 0.985 });
-                gsap.to(indicator, {
-                    x: target.x,
-                    y: target.y,
-                    width: target.width,
-                    height: target.height,
-                    scaleX: 1,
-                    scaleY: 1,
-                    duration: immediate ? 0 : 0.34,
-                    ease: immediate ? 'none' : 'power3.out'
-                });
-                gsap.fromTo(
-                    indicator,
-                    { '--liquid-stretch': immediate ? 0 : 1 },
-                    { '--liquid-stretch': 0, duration: 0.34, ease: 'power3.out' }
-                );
-            } else {
-                indicator.style.transform = `translate3d(${target.x}px, ${target.y}px, 0)`;
-                indicator.style.width = `${target.width}px`;
-                indicator.style.height = `${target.height}px`;
+        const target = {
+            x: btn.offsetLeft,
+            y: btn.offsetTop,
+            width: btn.offsetWidth,
+            height: btn.offsetHeight
+        };
+
+        if (window.gsap && !reduceMotion) {
+            gsap.killTweensOf(indicator);
+            if (!immediate) {
+                gsap.set(indicator, { scaleY: 1.035, scaleX: 0.985 });
             }
-        };
-
-        const getActiveLink = () => tabs.querySelector('a.active') || links[0];
-        const restoreActive = () => positionIndicator(getActiveLink());
-        const clearHoverState = () => {
-            tabs.classList.remove('is-hovering');
-            links.forEach(link => link.classList.remove('is-liquid-hover'));
-        };
-        const setHoverState = link => {
-            tabs.classList.add('is-hovering');
-            links.forEach(item => item.classList.toggle('is-liquid-hover', item === link));
-            positionIndicator(link);
-        };
-
-        positionIndicator(getActiveLink(), true);
-        requestAnimationFrame(() => positionIndicator(getActiveLink(), true));
-
-        links.forEach(link => {
-            link.addEventListener('mouseenter', () => setHoverState(link));
-            link.addEventListener('focus', () => setHoverState(link));
-            link.addEventListener('blur', () => {
-                if (!tabs.contains(document.activeElement)) {
-                    clearHoverState();
-                    restoreActive();
-                }
+            gsap.to(indicator, {
+                x: target.x,
+                y: target.y,
+                width: target.width,
+                height: target.height,
+                scaleX: 1,
+                scaleY: 1,
+                duration: immediate ? 0 : 0.34,
+                ease: immediate ? 'none' : 'power3.out'
             });
-            link.addEventListener('click', () => {
+            gsap.fromTo(
+                indicator,
+                { '--liquid-stretch': immediate ? 0 : 1 },
+                { '--liquid-stretch': 0, duration: 0.34, ease: 'power3.out' }
+            );
+        } else {
+            indicator.style.transform = `translate3d(${target.x}px, ${target.y}px, 0)`;
+            indicator.style.width = `${target.width}px`;
+            indicator.style.height = `${target.height}px`;
+        }
+    };
+
+    const getActiveButton = () => railNav.querySelector('.rail-button.active') || buttons[0];
+    const restoreActive = () => positionIndicator(getActiveButton());
+    const clearHoverState = () => {
+        railNav.classList.remove('is-hovering');
+        buttons.forEach(link => link.classList.remove('is-liquid-hover'));
+    };
+    const setHoverState = btn => {
+        railNav.classList.add('is-hovering');
+        buttons.forEach(item => item.classList.toggle('is-liquid-hover', item === btn));
+        positionIndicator(btn);
+    };
+
+    positionIndicator(getActiveButton(), true);
+    requestAnimationFrame(() => positionIndicator(getActiveButton(), true));
+
+    buttons.forEach(btn => {
+        btn.addEventListener('mouseenter', () => setHoverState(btn));
+        btn.addEventListener('focus', () => setHoverState(btn));
+        btn.addEventListener('blur', () => {
+            if (!railNav.contains(document.activeElement)) {
                 clearHoverState();
-                window.setTimeout(() => positionIndicator(link), 0);
-            });
-        });
-
-        tabs.addEventListener('mousemove', event => {
-            const rect = tabs.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            const y = event.clientY - rect.top;
-            const xRatio = (x / rect.width) - 0.5;
-            const yRatio = (y / rect.height) - 0.5;
-
-            tabs.style.setProperty('--glass-x', `${x}px`);
-            tabs.style.setProperty('--glass-y', `${y}px`);
-
-            if (window.gsap && !reduceMotion) {
-                gsap.to(tabs, {
-                    rotateX: yRatio * -2.4,
-                    rotateY: xRatio * 2.8,
-                    duration: 0.42,
-                    ease: 'power3.out',
-                    transformPerspective: 900
-                });
-            }
-
-            window.clearTimeout(settleTimer);
-            settleTimer = window.setTimeout(() => tabs.classList.add('is-liquid-settled'), 90);
-            tabs.classList.remove('is-liquid-settled');
-        });
-
-        tabs.addEventListener('mouseleave', () => {
-            tabs.style.setProperty('--glass-x', '50%');
-            tabs.style.setProperty('--glass-y', '50%');
-            clearHoverState();
-            restoreActive();
-
-            if (window.gsap && !reduceMotion) {
-                gsap.to(tabs, { rotateX: 0, rotateY: 0, duration: 0.46, ease: 'elastic.out(1, 0.8)' });
+                restoreActive();
             }
         });
-
-        tabs.restoreLiquidIndicator = () => {
+        btn.addEventListener('click', () => {
+            buttons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
             clearHoverState();
             restoreActive();
-        };
-
-        window.addEventListener('resize', () => positionIndicator(getActiveLink(), true));
-        window.addEventListener('load', () => positionIndicator(getActiveLink(), true));
+            window.setTimeout(() => positionIndicator(btn), 0);
+        });
     });
+
+    railNav.addEventListener('mouseleave', () => {
+        clearHoverState();
+        restoreActive();
+    });
+
+    railNav.restoreLiquidIndicator = () => {
+        clearHoverState();
+        restoreActive();
+    };
+
+    window.addEventListener('resize', () => positionIndicator(getActiveButton(), true));
+    window.addEventListener('load', () => positionIndicator(getActiveButton(), true));
 }
 
 function setupMenu(buttonId, panelId) {
@@ -3139,33 +3198,20 @@ function closeMenus() {
     const backdrop = document.getElementById('menuBackdrop');
     const openPanels = document.querySelectorAll('.menu-panel.is-open');
 
-    if (window.gsap && openPanels.length) {
-        gsap.to(openPanels, {
-            autoAlpha: 0,
-            y: -10,
-            scale: 0.96,
-            filter: 'blur(6px)',
-            duration: 0.18,
-            ease: 'power2.in',
-            onComplete: () => {
-                openPanels.forEach(panel => {
-                    panel.classList.remove('is-open');
-                    gsap.set(panel, { clearProps: 'opacity,visibility,y,scale,filter' });
-                });
-            }
-        });
-        gsap.to(backdrop, {
-            autoAlpha: 0,
-            duration: 0.2,
-            ease: 'power2.in',
-            onComplete: () => {
-                backdrop?.classList.remove('is-open');
-                if (backdrop) gsap.set(backdrop, { clearProps: 'opacity,visibility' });
-            }
-        });
-    } else {
-        openPanels.forEach(panel => panel.classList.remove('is-open'));
-        backdrop?.classList.remove('is-open');
+    openPanels.forEach(panel => {
+        panel.classList.remove('is-open');
+        if (window.gsap) gsap.killTweensOf(panel);
+        panel.style.removeProperty('opacity');
+        panel.style.removeProperty('visibility');
+        panel.style.removeProperty('transform');
+        panel.style.removeProperty('filter');
+    });
+
+    if (backdrop) {
+        backdrop.classList.remove('is-open');
+        if (window.gsap) gsap.killTweensOf(backdrop);
+        backdrop.style.removeProperty('opacity');
+        backdrop.style.removeProperty('visibility');
     }
 
     document.querySelectorAll('.top-actions [aria-expanded="true"]').forEach(button => {
@@ -3181,39 +3227,44 @@ function scrollToSection(targetId) {
 }
 
 function setActiveNav(targetId, tabs, railButtons) {
-    tabs.forEach(tab => {
-        tab.classList.toggle('active', tab.dataset.target === targetId);
-    });
+    if (tabs) {
+        tabs.forEach(tab => {
+            tab.classList.toggle('active', tab.dataset.target === targetId);
+        });
+    }
 
-    railButtons.forEach(button => {
-        button.classList.toggle('active', button.dataset.target === targetId);
-    });
+    if (railButtons) {
+        railButtons.forEach(button => {
+            button.classList.toggle('active', button.dataset.target === targetId);
+        });
+    }
 
     if (window.gsap) {
         const activeTabs = document.querySelectorAll(`.tabs a[data-target="${targetId}"]`);
-        gsap.fromTo(
-            activeTabs,
-            { scale: 0.92 },
-            { scale: 1, duration: 0.28, ease: 'back.out(2)' }
-        );
+        if (activeTabs.length) {
+            gsap.fromTo(
+                activeTabs,
+                { scale: 0.92 },
+                { scale: 1, duration: 0.28, ease: 'back.out(2)' }
+            );
+        }
     }
 
-    document.querySelectorAll('.tabs').forEach(tabsElement => {
-        tabsElement.restoreLiquidIndicator?.();
-    });
+    const railNav = document.querySelector('.rail-nav') || document.querySelector('.side-rail');
+    railNav?.restoreLiquidIndicator?.();
 }
 
 function initPremiumAnimations() {
     if (!window.gsap) return;
 
-    gsap.set(['.side-rail', '.greeting', '.tabs-sticky-wrap', '.top-actions', '.metric-card', '.panel'], {
+    gsap.set(['.side-rail', '.greeting', '.top-actions', '.metric-card', '.panel'], {
         opacity: 0,
         y: 22
     });
 
     const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
     tl.to('.side-rail', { opacity: 1, y: 0, duration: 0.55 })
-        .to(['.greeting', '.tabs-sticky-wrap', '.top-actions'], { opacity: 1, y: 0, stagger: 0.08, duration: 0.62, clearProps: 'transform' }, '-=0.35')
+        .to(['.greeting', '.top-actions'], { opacity: 1, y: 0, stagger: 0.08, duration: 0.62, clearProps: 'transform' }, '-=0.35')
         .to('.metric-card', { opacity: 1, y: 0, stagger: 0.07, duration: 0.5 }, '-=0.3')
         .to('.panel', { opacity: 1, y: 0, stagger: 0.07, duration: 0.5 }, '-=0.25');
 }

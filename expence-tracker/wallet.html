@@ -12,16 +12,14 @@
             <a class="logo-mark" href="index.html#dashboardTop" aria-label="Expense tracker">
                 <span></span><span></span><span></span><span></span>
             </a>
-            <a class="rail-button" href="index.html#dashboardTop" title="Dashboard" aria-label="Dashboard"><span class="ui-icon icon-grid"></span></a>
-            <a class="rail-button" href="analytics.html" title="Analytics" aria-label="Analytics"><span class="ui-icon icon-chart"></span></a>
-            <a class="rail-button active" href="wallet.html" title="Wallet" aria-label="Wallet"><span class="ui-icon icon-wallet"></span></a>
-            <a class="rail-button" href="search.html" title="Search" aria-label="Search expenses"><span class="ui-icon icon-search"></span></a>
-            <a class="rail-button" href="categories.html" title="Categories" aria-label="Categories"><span class="ui-icon icon-list"></span></a>
+            <nav class="rail-nav" aria-label="Main navigation">
+                <a class="rail-button" href="index.html#dashboardTop" title="Dashboard" aria-label="Dashboard"><span class="ui-icon icon-grid"></span></a>
+                <a class="rail-button" href="analytics.html" title="Analytics" aria-label="Analytics"><span class="ui-icon icon-chart"></span></a>
+                <a class="rail-button active" href="wallet.html" title="Wallet" aria-label="Wallet"><span class="ui-icon icon-wallet"></span></a>
+                <a class="rail-button" href="search.html" title="Search" aria-label="Search expenses"><span class="ui-icon icon-search"></span></a>
+                <a class="rail-button" href="categories.html" title="Categories" aria-label="Categories"><span class="ui-icon icon-list"></span></a>
+            </nav>
             <div class="rail-spacer"></div>
-            <button class="rail-button theme-toggle" id="themeToggle" title="Switch theme" aria-label="Switch to dark mode" aria-pressed="false">
-                <span class="ui-icon icon-sun theme-sun" aria-hidden="true"></span>
-                <span class="ui-icon icon-moon theme-moon" aria-hidden="true"></span>
-            </button>
             <button class="rail-button danger" id="logoutBtn" title="Logout" aria-label="Logout"><span class="ui-icon icon-logout"></span></button>
         </aside>
 
@@ -33,14 +31,21 @@
                     </a>
                     <p id="timeGreeting">Here is your spending overview</p>
                 </div>
-                <div class="tabs-sticky-wrap">
-                    <div class="tabs" id="headerTabs" aria-label="Dashboard sections">
-                        <a href="index.html#expenseForm">Add</a>
-                        <a href="analytics.html">Analytics</a>
-                        <a class="active" href="wallet.html">Transactions</a>
-                        <a href="search.html">Search</a>
-                        <a href="categories.html">Categories</a>
-                    </div>
+                <div class="mobile-top-nav-wrap">
+                    <nav class="mobile-nav-top-left" aria-label="Sections navigation">
+                        <a class="mobile-nav-pill" href="analytics.html" title="Analytics" aria-label="Analytics">
+                            <span class="ui-icon icon-chart" aria-hidden="true"></span>
+                            <span>Analytics</span>
+                        </a>
+                        <a class="mobile-nav-pill active" href="wallet.html" title="Wallet" aria-label="Wallet">
+                            <span class="ui-icon icon-wallet" aria-hidden="true"></span>
+                            <span>Wallet</span>
+                        </a>
+                        <a class="mobile-nav-pill" href="categories.html" title="Categories" aria-label="Categories">
+                            <span class="ui-icon icon-list" aria-hidden="true"></span>
+                            <span>Categories</span>
+                        </a>
+                    </nav>
                 </div>
                 <div class="top-actions">
                     <div class="action-menu">
@@ -67,7 +72,6 @@
                             <p id="profileSubtitle">Start your Spendora experience and keep your spending secure.</p>
                             <button type="button" id="profileAddBtn" hidden>Switch user mode</button>
                             <button type="button" class="profile-secondary" id="profileLoginBtn">Login or sign up</button>
-                            <button type="button" class="profile-danger" id="profileLogoutBtn" hidden>Logout</button>
                         </div>
                     </div>
                 </div>
@@ -114,8 +118,8 @@
                                 <div class="left-half">
                                     <div class="card-stack-area">
                                         <div class="wcard wc-stripe" data-wallet-card="stripe">
-                                            <div class="wcard-inner">
-                                                <div class="wcard-top"><span data-card-name>Spendora</span><div class="wchip"></div></div>
+                                             <div class="wcard-inner">
+                                                <div class="wcard-top"><span data-card-name>SPENDORA</span><div class="wchip"></div></div>
                                                 <div class="wcard-bottom">
                                                     <div><span class="wlabel" data-card-label>Holder</span><span class="wvalue" data-card-info>GUEST</span></div>
                                                     <div><span class="wstars" data-card-masked>**** 4242</span><span class="wnumber" data-card-number>5524 9910 4242</span></div>
@@ -123,8 +127,8 @@
                                             </div>
                                         </div>
                                         <div class="wcard wc-wise" data-wallet-card="wise">
-                                            <div class="wcard-inner">
-                                                <div class="wcard-top"><span data-card-name>Budget</span><div class="wchip"></div></div>
+                                             <div class="wcard-inner">
+                                                <div class="wcard-top"><span data-card-name>CRYPTEX.</span><div class="wchip"></div></div>
                                                 <div class="wcard-bottom">
                                                     <div><span class="wlabel" data-card-label>Month</span><span class="wvalue" data-card-info>LIVE</span></div>
                                                     <div><span class="wstars" data-card-masked>**** 8810</span><span class="wnumber" data-card-number>9012 4432 8810</span></div>
@@ -132,10 +136,10 @@
                                             </div>
                                         </div>
                                         <div class="wcard wc-paypal" data-wallet-card="payflow">
-                                            <div class="wcard-inner">
-                                                <div class="wcard-top"><span data-card-name>PayFlow</span><div class="wchip"></div></div>
+                                             <div class="wcard-inner">
+                                                <div class="wcard-top"><span data-card-name>PAYFLOW.</span><div class="wchip"></div></div>
                                                 <div class="wcard-bottom">
-                                                    <div><span class="wlabel" data-card-label>Status</span><span class="wvalue" data-card-info>Ready</span></div>
+                                                    <div><span class="wlabel" data-card-label>STATUS</span><span class="wvalue" data-card-info>Health</span></div>
                                                     <div><span class="wstars" data-card-masked>**** 0094</span><span class="wnumber" data-card-number>3312 0045 0094</span></div>
                                                 </div>
                                             </div>
@@ -143,8 +147,8 @@
 
                                         <div class="pocket-strip">
                                             <svg viewBox="0 0 168 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M 0 10 C 0 5,3 5,6 5 C 12 5,15 14,24 14 L 144 14 C 153 14,156 5,162 5 C 165 5,168 5,168 10 L 168 52 C 168 62,156 64,144 64 L 24 64 C 12 64,0 62,0 52 Z" fill="#7a3e0e"/>
-                                                <path d="M 4 11 C 4 7,7 7,9 7 C 14 7,16 15,24 15 L 144 15 C 152 15,154 7,159 7 C 161 7,164 7,164 11 L 164 52 C 164 61,154 63,144 63 L 24 63 C 14 63,4 61,4 52 Z" stroke="#a05a20" stroke-width="1" stroke-dasharray="5 3"/>
+                                                <path d="M 0 10 C 0 5,3 5,6 5 C 12 5,15 14,24 14 L 144 14 C 153 14,156 5,162 5 C 165 5,168 5,168 10 L 168 52 C 168 62,156 64,144 64 L 24 64 C 12 64,0 62,0 52 Z" fill="#6B3510"/>
+                                                <path d="M 4 11 C 4 7,7 7,9 7 C 14 7,16 15,24 15 L 144 15 C 152 15,154 7,159 7 C 161 7,164 7,164 11 L 164 52 C 164 61,154 63,144 63 L 24 63 C 14 63,4 61,4 52 Z" stroke="#9E5620" stroke-width="1" stroke-dasharray="5 3"/>
                                             </svg>
                                             <div class="pocket-info">
                                                 <div class="bal-wrap">
@@ -168,6 +172,8 @@
                                 <div class="right-half">
                                     <button class="id-window" id="idWindow" type="button" aria-haspopup="dialog" aria-controls="walletUploadModal">
                                         <div class="inner-stitching-right"></div>
+                                        <img src="assets/earth-artwork.jpg" alt="Earth artwork" class="wallet-earth-img" id="walletEarthImg">
+                                        <div class="id-placeholder" id="idPlaceholder" style="display: none;">
                                         <div class="id-placeholder" id="idPlaceholder">
                                             <span class="ui-icon icon-card"></span>
                                             <span>Click to add<br>photo / ID</span>
@@ -237,6 +243,24 @@
                 </section>
             </section>
         </main>
+
+        <!-- Mobile/Tablet Floating Responsive Navigation Shell -->
+        <nav class="mobile-nav-bottom-center" aria-label="Primary navigation">
+            <a class="mobile-nav-btn" href="index.html#dashboardTop" title="Home" aria-label="Home">
+                <span class="ui-icon icon-grid" aria-hidden="true"></span>
+            </a>
+            <a class="mobile-nav-btn" href="search.html" title="Search" aria-label="Search">
+                <span class="ui-icon icon-search" aria-hidden="true"></span>
+            </a>
+            <button type="button" class="mobile-nav-btn mobile-profile-btn" id="mobileProfileBtn" title="Profile" aria-label="Profile" aria-expanded="false" aria-controls="profilePanel">
+                <span class="ui-icon icon-user" aria-hidden="true"></span>
+            </button>
+        </nav>
+        <div class="mobile-nav-bottom-right">
+            <button type="button" class="mobile-logout-btn" id="mobileLogoutBtn" title="Logout" aria-label="Logout">
+                <span class="ui-icon icon-logout" aria-hidden="true"></span>
+            </button>
+        </div>
     </div>
     <div class="menu-backdrop" id="menuBackdrop" aria-hidden="true"></div>
     <div class="wallet-upload-modal" id="walletUploadModal" aria-hidden="true">
@@ -278,6 +302,7 @@
             <h2 id="walletCardsTitle">Edit wallet cards</h2>
             <p>Update the visible card name, info label, displayed information, and card number.</p>
             <label class="wallet-balance-field">
+            <div class="wallet-balance-field">
                 <span>Card</span>
                 <select id="walletCardSelect">
                     <option value="stripe">Top card</option>
@@ -285,6 +310,19 @@
                     <option value="payflow">Bottom card</option>
                 </select>
             </label>
+                <div class="spendora-select" data-select-root data-placeholder="Top card">
+                    <input type="hidden" id="walletCardSelect" value="stripe">
+                    <button type="button" class="spendora-select-trigger" data-select-trigger aria-expanded="false">
+                        <span data-select-label>Top card</span>
+                        <i aria-hidden="true"></i>
+                    </button>
+                    <div class="spendora-select-menu" data-select-menu hidden>
+                        <button type="button" class="is-selected" data-select-option="stripe" aria-selected="true">Top card</button>
+                        <button type="button" data-select-option="wise">Middle card</button>
+                        <button type="button" data-select-option="payflow">Bottom card</button>
+                    </div>
+                </div>
+            </div>
             <div class="wallet-card-editor-grid">
                 <label class="wallet-balance-field">
                     <span>Card name</span>
