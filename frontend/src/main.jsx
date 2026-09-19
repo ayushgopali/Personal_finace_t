@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
-import './styles.css';
+import './styles/styles.css';
 
 // Single React application entry point. Mounts <App /> onto #root.
 ReactDOM.createRoot(document.getElementById('root')).render(

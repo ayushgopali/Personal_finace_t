@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import Dashboard from './pages/Dashboard';
 import Analytics from './pages/Analytics';
+import Transactions from './pages/Transactions';
 import Search from './pages/Search';
 import Categories from './pages/Categories';
 import Wallet from './pages/Wallet';
@@ -11,13 +12,14 @@ import Login from './pages/Login';
 import SwitchUserMode from './pages/SwitchUserMode';
 
 // Route map preserves existing navigation destinations/meaning:
-//   index      -> /            (Dashboard)
-//   analytics  -> /analytics
-//   wallet     -> /wallet      (Transactions/Wallet)
-//   search     -> /search
-//   categories -> /categories
-//   login      -> /login
-//   switch     -> /switch-user-mode
+//   index        -> /            (Dashboard)
+//   analytics    -> /analytics
+//   transactions -> /transactions (full expense ledger)
+//   wallet       -> /wallet      (Budget command center)
+//   search       -> /search
+//   categories   -> /categories
+//   login        -> /login
+//   switch       -> /switch-user-mode
 // Legacy *.html URLs redirect to the equivalent React route so bookmarks,
 // browser history, and direct navigation keep working.
 function BodyClassSync() {
@@ -40,6 +42,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/analytics" element={<Analytics />} />
+          <Route path="/transactions" element={<Transactions />} />
           <Route path="/wallet" element={<Wallet />} />
           <Route path="/search" element={<Search />} />
           <Route path="/categories" element={<Categories />} />

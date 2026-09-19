@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import AppShell from '../components/AppShell';
-import ExpenseForm from '../components/ExpenseForm';
-import ExpenseTable from '../components/ExpenseTable';
-import CategoryInsight from '../components/CategoryInsight';
+import AppShell from '../components/layout/AppShell';
+import ExpenseForm from '../components/expenses/ExpenseForm';
+import ExpenseTable from '../components/expenses/ExpenseTable';
+import CategoryInsight from '../components/categories/CategoryInsight';
 import api from '../services/api';
 import { useToast } from '../context/ToastContext';
 import {

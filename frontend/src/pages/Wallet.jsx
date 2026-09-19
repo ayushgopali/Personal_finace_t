@@ -1,10 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import AppShell from '../components/AppShell';
-import SpendoraSelect from '../components/SpendoraSelect';
+import AppShell from '../components/layout/AppShell';
+import WalletBifold from '../components/wallet/WalletBifold';
+import BudgetManager from '../components/wallet/BudgetManager';
+import BalanceModal from '../components/wallet/BalanceModal';
+import CardsModal from '../components/wallet/CardsModal';
+import PhotoModal from '../components/wallet/PhotoModal';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { formatWalletCardMask, getBudgetStatus, getCategoryTotals } from '../utils/analytics';
+import { getBudgetStatus, getCategoryTotals } from '../utils/analytics';
 
 const BALANCE_KEY = 'spendora-wallet-balance';
 const BUDGET_KEY = 'spendora-monthly-budget';
@@ -158,6 +162,12 @@ export default function Wallet() {
     setCardsModalOpen(true);
   };
 
+  const handleCardKey = (v) => {
+    const next = v || 'stripe';
+    setCardKey(next);
+    populateCardFields(next, displayName, monthKey, status.shortLabel, setCardFields);
+  };
+
   const saveCard = () => {
     const stored = getStoredCards();
     stored[cardKey] = { ...cardFields };
@@ -175,7 +185,7 @@ export default function Wallet() {
     try {
       localStorage.setItem(CARDS_KEY, JSON.stringify(stored));
     } catch { /* ignore */ }
-    populateCardFields(cardKey, displayName, monthKey, status.shortLabel);
+    populateCardFields(cardKey, displayName, monthKey, status.shortLabel, setCardFields);
     notify('Wallet card reset', 'info');
   };
 
@@ -278,303 +288,73 @@ export default function Wallet() {
         </section>
 
         <section className="wallet-grid">
-          <section className="panel wallet-visual-panel">
-            <div className="panel-head">
-              <h2>Premium Bifold</h2>
-              <div className="wallet-options">
-                <button
-                  type="button"
-                  className="wallet-options-trigger"
-                  id="walletOptionsBtn"
-                  aria-label="Wallet options"
-                  aria-expanded={optionsOpen ? 'true' : 'false'}
-                  aria-controls="walletOptionsMenu"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setOptionsOpen(o => !o);
-                  }}
-                >
-                  ...
-                </button>
-                <div className={`wallet-options-menu${optionsOpen ? ' is-open' : ''}`} id="walletOptionsMenu">
-                  <button type="button" id="walletEditCardsBtn" onClick={openCardEditor}>Edit cards</button>
-                  <button type="button" id="walletRemovePhotoBtn" onClick={removePhoto}>Remove photo</button>
-                </div>
-              </div>
-            </div>
-
-            <div className="wallet-scene">
-              <div className={`premium-bifold ${statusClass}`} id="premiumBifold">
-                <div className="wallet-outer">
-                  <div className="leather-grain" />
-                  <div className="edge-shadow-top" />
-                  <div className="edge-shadow-bottom" />
-                  <div className="edge-shadow-left" />
-                  <div className="edge-shadow-right" />
-                  <div className="stitching" />
-                </div>
-
-                <div className="fold-shadow-left" />
-                <div className="fold-shadow-right" />
-                <div className="fold-line" />
-
-                <div className="left-half">
-                  <div className="card-stack-area">
-                    {['stripe', 'wise', 'payflow'].map(key => (
-                      <div className={`wcard wc-${key}`} data-wallet-card={key} key={key}>
-                        <div className="wcard-inner">
-                          <div className="wcard-top"><span data-card-name>{cards[key].name}</span><div className="wchip" /></div>
-                          <div className="wcard-bottom">
-                            <div><span className="wlabel" data-card-label>{cards[key].label}</span><span className="wvalue" data-card-info>{cards[key].info}</span></div>
-                            <div><span className="wstars" data-card-masked>{formatWalletCardMask(cards[key].number)}</span><span className="wnumber" data-card-number>{cards[key].number}</span></div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-
-                    <div className="pocket-strip">
-                      <svg viewBox="0 0 168 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M 0 10 C 0 5,3 5,6 5 C 12 5,15 14,24 14 L 144 14 C 153 14,156 5,162 5 C 165 5,168 5,168 10 L 168 52 C 168 62,156 64,144 64 L 24 64 C 12 64,0 62,0 52 Z" fill="#6B3510" />
-                        <path d="M 4 11 C 4 7,7 7,9 7 C 14 7,16 15,24 15 L 144 15 C 152 15,154 7,159 7 C 161 7,164 7,164 11 L 164 52 C 164 61,154 63,144 63 L 24 63 C 14 63,4 61,4 52 Z" stroke="#9E5620" strokeWidth="1" strokeDasharray="5 3" />
-                      </svg>
-                      <div className="pocket-info">
-                        <div className="bal-wrap">
-                          <div className="bal-stars">*****</div>
-                          <div className="bal-real" id="walletBalanceReveal">INR {balance.toFixed(2)}</div>
-                        </div>
-                        <div className="bal-label">Balance</div>
-                        <div className="eye-wrap">
-                          <svg className="ei ei-slash" width="13" height="13" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /><line x1="3" y1="3" x2="21" y2="21" />
-                          </svg>
-                          <svg className="ei ei-open" style={{ opacity: 0 }} width="13" height="13" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="right-half">
-                  <button className="id-window" id="idWindow" type="button" aria-haspopup="dialog" aria-controls="walletUploadModal" onClick={openUpload}>
-                    <div className="inner-stitching-right" />
-                    {photo ? (
-                      <img src={photo} alt="Wallet ID photo" className="wallet-earth-img" id="walletEarthImg" />
-                    ) : (
-                      <div className="id-placeholder" id="idPlaceholder">
-                        <span className="ui-icon icon-card" />
-                        <span>Click to add<br />photo / ID</span>
-                      </div>
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section className="panel budget-manager-panel">
-            <div className="panel-head">
-              <h2>Monthly Budget Manager</h2>
-              <span className={`budget-status-pill ${statusClass}`} id="budgetStatusPill">{status.label}</span>
-            </div>
-
-            <div className="budget-input-row">
-              <label>
-                <span>Monthly budget</span>
-                <input
-                  type="number"
-                  id="monthlyBudgetInput"
-                  min="0"
-                  step="100"
-                  placeholder="Enter amount in INR"
-                  value={budgetInput}
-                  onChange={e => setBudgetInput(e.target.value)}
-                  onKeyDown={e => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      saveBudget();
-                    }
-                  }}
-                />
-              </label>
-              <button type="button" className="btn-primary" id="saveBudgetBtn" onClick={saveBudget}>Update</button>
-            </div>
-
-            <div className={`budget-meter-card ${statusClass}`} id="budgetMeterCard">
-              <div className="budget-meter-top">
-                <div>
-                  <span>Spent this month</span>
-                  <strong id="budgetSpent">INR {spent.toFixed(2)}</strong>
-                </div>
-                <div>
-                  <span>Budget</span>
-                  <strong id="budgetLimit">{budget > 0 ? `INR ${budget.toFixed(2)}` : 'INR 0.00'}</strong>
-                </div>
-              </div>
-
-              <div className="budget-progress-shell" aria-label="Monthly budget usage">
-                <span id="budgetProgressFill" className={statusClass} style={{ width: `${Math.min(percent, 100)}%` }} />
-              </div>
-
-              <div className="budget-meter-bottom">
-                <strong id="budgetPercent">{budget > 0 ? `${Math.round(percent)}%` : '0%'}</strong>
-                <span id="budgetRemaining">
-                  {budget <= 0
-                    ? 'Set a budget to start tracking.'
-                    : remaining >= 0
-                      ? `INR ${remaining.toFixed(2)} remaining this month.`
-                      : `INR ${Math.abs(remaining).toFixed(2)} over budget.`}
-                </span>
-              </div>
-            </div>
-
-            <div className="budget-insight-grid">
-              <article>
-                <span>Transactions</span>
-                <strong id="budgetTransactions">{monthRecords.length}</strong>
-              </article>
-              <article>
-                <span>Average spend</span>
-                <strong id="budgetAverage">INR {average.toFixed(2)}</strong>
-              </article>
-              <article>
-                <span>Top category</span>
-                <strong id="budgetTopCategory">{topCategory ? topCategory.category : 'None'}</strong>
-              </article>
-            </div>
-
-            <div className={`budget-alert ${statusClass}`} id="budgetAlert">
-              {status.message}
-            </div>
-          </section>
+          <WalletBifold
+            cards={cards}
+            balance={balance}
+            photo={photo}
+            statusClass={statusClass}
+            optionsOpen={optionsOpen}
+            onToggleOptions={() => setOptionsOpen(o => !o)}
+            onEditCards={openCardEditor}
+            onRemovePhoto={removePhoto}
+            onOpenUpload={openUpload}
+          />
+          <BudgetManager
+            budget={budget}
+            spent={spent}
+            percent={percent}
+            remaining={remaining}
+            status={status}
+            statusClass={statusClass}
+            txCount={monthRecords.length}
+            average={average}
+            topCategory={topCategory}
+            budgetInput={budgetInput}
+            onBudgetInput={setBudgetInput}
+            onSaveBudget={saveBudget}
+          />
         </section>
       </section>
 
-      <div className={`wallet-upload-modal${uploadOpen ? ' is-open' : ''}`} id="walletUploadModal" aria-hidden={uploadOpen ? 'false' : 'true'}>
-        <div className="wallet-upload-card" role="dialog" aria-modal="true" aria-labelledby="walletUploadTitle">
-          <button type="button" className="wallet-upload-close" id="walletUploadClose" aria-label="Close upload panel" onClick={() => setUploadOpen(false)}>x</button>
-          <span className="wallet-kicker">Photo / ID</span>
-          <h2 id="walletUploadTitle">Add wallet ID</h2>
-          <p>Choose an image or drag and drop it here.</p>
-          <label className={`wallet-dropzone${dragging ? ' is-dragging' : ''}`} id="walletDropzone"
-            onDragEnter={e => { e.preventDefault(); setDragging(true); }}
-            onDragOver={e => { e.preventDefault(); setDragging(true); }}
-            onDragLeave={e => { e.preventDefault(); setDragging(false); }}
-            onDrop={e => {
-              e.preventDefault();
-              setDragging(false);
-              usePhotoFile(e.dataTransfer?.files?.[0]);
-            }}
-          >
-            <input
-              type="file"
-              accept="image/*"
-              id="photoInput"
-              ref={fileInputRef}
-              onChange={e => {
-                usePhotoFile(e.target.files?.[0]);
-                e.target.value = '';
-              }}
-            />
-            <span className="ui-icon icon-card" aria-hidden="true" />
-            <strong>Drop image here</strong>
-            <small>or click to browse from your device</small>
-          </label>
-        </div>
-      </div>
-
-      <div className={`wallet-upload-modal${balanceModalOpen ? ' is-open' : ''}`} id="walletBalanceModal" aria-hidden={balanceModalOpen ? 'false' : 'true'}>
-        <div className="wallet-upload-card wallet-balance-card" role="dialog" aria-modal="true" aria-labelledby="walletBalanceTitle">
-          <button type="button" className="wallet-upload-close" id="walletBalanceClose" aria-label="Close balance panel" onClick={() => setBalanceModalOpen(false)}>x</button>
-          <span className="wallet-kicker">Balance</span>
-          <h2 id="walletBalanceTitle">{hasSavedBalance ? 'Update wallet balance' : 'Add wallet balance'}</h2>
-          <p id="walletBalanceDescription">
-            {hasSavedBalance
-              ? 'Add more money to your current balance, or update it with a new amount.'
-              : 'Add money to your wallet balance or replace it with a new amount.'}
-          </p>
-          <label className="wallet-balance-field">
-            <span>Amount in INR</span>
-            <input
-              type="number"
-              id="walletBalanceInput"
-              min="0"
-              step="100"
-              placeholder="Enter amount"
-              aria-describedby="walletBalanceError"
-              aria-invalid={balanceError ? 'true' : 'false'}
-              value={balanceInput}
-              onChange={e => {
-                setBalanceInput(e.target.value);
-                if (Number(e.target.value || 0) >= 0) setBalanceError('');
-              }}
-              onKeyDown={e => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  commitBalance('add');
-                }
-              }}
-            />
-          </label>
-          <small className={`wallet-validation-message${balanceError ? ' is-visible' : ''}`} id="walletBalanceError" aria-live="polite">
-            {balanceError}
-          </small>
-          <div className="wallet-balance-actions">
-            <button type="button" className="btn-primary" id="walletAddBalanceConfirm" onClick={() => commitBalance('add')}>Add balance</button>
-            <button type="button" className="btn-secondary" id="walletSetBalanceConfirm" onClick={() => commitBalance('set')}>Update balance</button>
-          </div>
-          <small className="wallet-balance-note" id="walletBalanceCurrent">Current balance: INR {balance.toFixed(2)}</small>
-        </div>
-      </div>
-
-      <div className={`wallet-upload-modal${cardsModalOpen ? ' is-open' : ''}`} id="walletCardsModal" aria-hidden={cardsModalOpen ? 'false' : 'true'}>
-        <div className="wallet-upload-card wallet-card-editor-card" role="dialog" aria-modal="true" aria-labelledby="walletCardsTitle">
-          <button type="button" className="wallet-upload-close" id="walletCardsClose" aria-label="Close card editor" onClick={() => setCardsModalOpen(false)}>x</button>
-          <span className="wallet-kicker">Cards</span>
-          <h2 id="walletCardsTitle">Edit wallet cards</h2>
-          <p>Update the visible card name, info label, displayed information, and card number.</p>
-          <div className="wallet-balance-field">
-            <span>Card</span>
-            <SpendoraSelect
-              id="walletCardSelect"
-              value={cardKey}
-              onChange={(v) => {
-                setCardKey(v || 'stripe');
-                populateCardFields(v || 'stripe', displayName, monthKey, status.shortLabel, setCardFields);
-              }}
-              placeholder="Top card"
-              options={[
-                { value: 'stripe', label: 'Top card' },
-                { value: 'wise', label: 'Middle card' },
-                { value: 'payflow', label: 'Bottom card' }
-              ]}
-            />
-          </div>
-          <div className="wallet-card-editor-grid">
-            <label className="wallet-balance-field">
-              <span>Card name</span>
-              <input type="text" id="walletEditCardName" maxLength="18" placeholder="Card name" value={cardFields.name} onChange={e => setCardFields(f => ({ ...f, name: e.target.value }))} />
-            </label>
-            <label className="wallet-balance-field">
-              <span>Info label</span>
-              <input type="text" id="walletEditCardLabel" maxLength="16" placeholder="Holder" value={cardFields.label} onChange={e => setCardFields(f => ({ ...f, label: e.target.value }))} />
-            </label>
-            <label className="wallet-balance-field">
-              <span>Information</span>
-              <input type="text" id="walletEditCardInfo" maxLength="24" placeholder="Card info" value={cardFields.info} onChange={e => setCardFields(f => ({ ...f, info: e.target.value }))} />
-            </label>
-            <label className="wallet-balance-field">
-              <span>Card number</span>
-              <input type="text" id="walletEditCardNumber" maxLength="24" placeholder="0000 0000 0000" value={cardFields.number} onChange={e => setCardFields(f => ({ ...f, number: e.target.value }))} />
-            </label>
-          </div>
-          <div className="wallet-balance-actions">
-            <button type="button" className="btn-primary" id="walletSaveCardBtn" onClick={saveCard}>Save card</button>
-            <button type="button" className="btn-secondary" id="walletResetCardBtn" onClick={resetCard}>Reset card</button>
-          </div>
-        </div>
-      </div>
+      <PhotoModal
+        open={uploadOpen}
+        dragging={dragging}
+        fileInputRef={fileInputRef}
+        onClose={() => setUploadOpen(false)}
+        onFile={usePhotoFile}
+        onDragEnter={e => { e.preventDefault(); setDragging(true); }}
+        onDragOver={e => { e.preventDefault(); setDragging(true); }}
+        onDragLeave={e => { e.preventDefault(); setDragging(false); }}
+        onDrop={e => {
+          e.preventDefault();
+          setDragging(false);
+          usePhotoFile(e.dataTransfer?.files?.[0]);
+        }}
+      />
+      <BalanceModal
+        open={balanceModalOpen}
+        balance={balance}
+        hasSavedBalance={hasSavedBalance}
+        input={balanceInput}
+        error={balanceError}
+        onInput={(v) => {
+          setBalanceInput(v);
+          if (Number(v || 0) >= 0) setBalanceError('');
+        }}
+        onClose={() => setBalanceModalOpen(false)}
+        onAdd={() => commitBalance('add')}
+        onSet={() => commitBalance('set')}
+      />
+      <CardsModal
+        open={cardsModalOpen}
+        cardKey={cardKey}
+        onCardKey={handleCardKey}
+        fields={cardFields}
+        onFields={setCardFields}
+        onClose={() => setCardsModalOpen(false)}
+        onSave={saveCard}
+        onReset={resetCard}
+      />
     </AppShell>
   );
 }
