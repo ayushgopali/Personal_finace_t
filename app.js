@@ -2308,27 +2308,17 @@ function formatWalletCardMask(number) {
 }
 
 function clearWalletPhotoView() {
-    walletPhotoCache = 'none';
-    localStorage.setItem('spendora-wallet-photo', 'none');
     walletPhotoCache = '';
     try {
         localStorage.removeItem('spendora-wallet-photo');
     } catch {}
-    renderWalletPhoto();
     renderWalletPhoto(false);
 }
 
 async function syncWalletPhotoState() {
     if (!document.getElementById('idWindow')) return;
 
-    const stored = localStorage.getItem('spendora-wallet-photo');
-    if (stored === 'none' || walletPhotoCache === 'none') {
-        clearWalletPhotoView();
-        return;
-    }
-
     if (!isAuthenticated) {
-        renderWalletPhoto();
         renderWalletPhoto(false);
         return;
     }
@@ -2348,25 +2338,15 @@ async function syncWalletPhotoState() {
             return;
         }
 
-        if (result.photo) {
         if (response.ok && result.authenticated && result.photo) {
             walletPhotoCache = result.photo;
-            try {
-                localStorage.setItem('spendora-wallet-photo', result.photo);
-            } catch {
-                localStorage.removeItem('spendora-wallet-photo');
-            }
             renderWalletPhoto(false);
         } else {
             walletPhotoCache = '';
-            localStorage.removeItem('spendora-wallet-photo');
             renderWalletPhoto(false);
         }
-
-        renderWalletPhoto(Boolean(result.photo));
     } catch (error) {
         console.error('Error loading wallet photo:', error);
-        renderWalletPhoto();
         walletPhotoCache = '';
         renderWalletPhoto(false);
     }
@@ -2431,10 +2411,7 @@ function loadImageElement(source) {
 function storeWalletPhotoLocally(photo) {
     walletPhotoCache = photo;
     try {
-        localStorage.setItem('spendora-wallet-photo', photo);
-    } catch {
         localStorage.removeItem('spendora-wallet-photo');
-    }
     } catch {}
 }
 
@@ -2545,9 +2522,7 @@ function setupWalletPhotoUpload() {
 
             try {
                 photo = await prepareWalletPhoto(file);
-                const photo = await prepareWalletPhoto(file);
                 await saveWalletPhotoToServer(photo);
-                storeWalletPhotoLocally(photo);
                 walletPhotoCache = photo;
                 try {
                     localStorage.removeItem('spendora-wallet-photo');
@@ -2556,14 +2531,6 @@ function setupWalletPhotoUpload() {
                 closeUploadModal();
                 showNotification('Wallet ID photo saved', 'success');
             } catch (error) {
-                if (photo) {
-                    storeWalletPhotoLocally(photo);
-                    renderWalletPhoto(true);
-                    closeUploadModal();
-                    showNotification('Photo added locally. Restart the Node server to sync it to MongoDB.', 'info');
-                } else {
-                    showNotification(error.message || 'Wallet photo could not be saved.', 'error');
-                }
                 showNotification(error.message || 'Wallet photo could not be saved.', 'error');
             }
         };
@@ -2622,21 +2589,10 @@ function renderWalletPhoto(animate = false) {
     if (!windowElement) return;
 
     let image = windowElement.querySelector('img');
-    const stored = localStorage.getItem('spendora-wallet-photo');
-
-    if (stored === 'none' || walletPhotoCache === 'none') {
-        if (image) image.remove();
-        if (placeholder) placeholder.style.display = 'flex';
-        return;
-    }
-
-    const photo = (walletPhotoCache && walletPhotoCache !== 'none')
     const photo = (walletPhotoCache && typeof walletPhotoCache === 'string' && walletPhotoCache.trim() !== '' && walletPhotoCache !== 'none')
         ? walletPhotoCache
-        : (stored && stored !== 'none' ? stored : 'assets/earth-artwork.jpg');
         : '';
 
-    if (!photo || photo === 'none') {
     if (!photo) {
         if (image) image.remove();
         if (placeholder) placeholder.style.display = 'flex';
@@ -2647,7 +2603,6 @@ function renderWalletPhoto(animate = false) {
         image = document.createElement('img');
         image.className = 'wallet-earth-img';
         image.id = 'walletEarthImg';
-        image.alt = 'Earth artwork';
         image.alt = 'Wallet ID photo';
         windowElement.appendChild(image);
     }
@@ -3092,7 +3047,6 @@ function initHeaderControls() {
     document.getElementById('mobileLogoutBtn')?.addEventListener('click', requestLogout);
 
     document.addEventListener('click', event => {
-        if (!event.target.closest('.action-menu')) {
         if (!event.target.closest('.action-menu') && !event.target.closest('#mobileProfileBtn')) {
             closeMenus();
         }
@@ -3244,33 +3198,6 @@ function closeMenus() {
     const backdrop = document.getElementById('menuBackdrop');
     const openPanels = document.querySelectorAll('.menu-panel.is-open');
 
-    if (window.gsap && openPanels.length) {
-        gsap.to(openPanels, {
-            autoAlpha: 0,
-            y: -10,
-            scale: 0.96,
-            filter: 'blur(6px)',
-            duration: 0.18,
-            ease: 'power2.in',
-            onComplete: () => {
-                openPanels.forEach(panel => {
-                    panel.classList.remove('is-open');
-                    gsap.set(panel, { clearProps: 'opacity,visibility,y,scale,filter' });
-                });
-            }
-        });
-        gsap.to(backdrop, {
-            autoAlpha: 0,
-            duration: 0.2,
-            ease: 'power2.in',
-            onComplete: () => {
-                backdrop?.classList.remove('is-open');
-                if (backdrop) gsap.set(backdrop, { clearProps: 'opacity,visibility' });
-            }
-        });
-    } else {
-        openPanels.forEach(panel => panel.classList.remove('is-open'));
-        backdrop?.classList.remove('is-open');
     openPanels.forEach(panel => {
         panel.classList.remove('is-open');
         if (window.gsap) gsap.killTweensOf(panel);
@@ -3287,7 +3214,7 @@ function closeMenus() {
         backdrop.style.removeProperty('visibility');
     }
 
-    document.querySelectorAll('.top-actions [aria-expanded="true"]').forEach(button => {
+    document.querySelectorAll('[aria-expanded="true"]').forEach(button => {
         button.setAttribute('aria-expanded', 'false');
     });
 }

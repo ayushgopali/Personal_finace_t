@@ -4,6 +4,7 @@ const express = require('express');
 const { MongoClient, ObjectId } = require('mongodb');
 const cors = require('cors');
 const crypto = require('crypto');
+const fs = require('fs');
 const path = require('path');
 const { generateRegistrationOptions, verifyRegistrationResponse } = require('@simplewebauthn/server');
 
@@ -16,6 +17,22 @@ const MAX_WALLET_PHOTO_BYTES = 8 * 1024 * 1024;
 // Middleware
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
+
+// ==================== REACT FRONTEND (pure-React migration) ====================
+// Serves the React production build (frontend/dist) when present. Additive only:
+// - No API, auth, database, or business-logic behavior is changed below.
+// - Legacy standalone files (analytics.html, app.js, styles.css, ...) remain on
+//   disk and stay directly reachable via the existing static middleware, so
+//   removing frontend/dist restores the legacy frontend (rollback safety).
+//   (Note: /index.html resolves to the React entry when a build exists, since
+//   both define that filename; the legacy file itself is untouched on disk.)
+// - React's hashed asset filenames cannot collide with legacy files.
+const REACT_DIST_DIR = path.join(__dirname, '..', 'frontend', 'dist');
+const REACT_INDEX_FILE = path.join(REACT_DIST_DIR, 'index.html');
+const hasReactBuild = fs.existsSync(REACT_INDEX_FILE);
+if (hasReactBuild) {
+  app.use(express.static(REACT_DIST_DIR));
+}
 app.use(express.static(__dirname));
 
 // MongoDB Connection String - 
@@ -371,23 +388,51 @@ app.get('/api/auth/oauth-status', (req, res) => {
 });
 
 app.get('/login', (req, res) => {
+  if (hasReactBuild) {
+    res.sendFile(REACT_INDEX_FILE);
+    return;
+  }
   res.sendFile(path.join(__dirname, 'login.html'));
 });
 
 app.get('/search', (req, res) => {
+  if (hasReactBuild) {
+    res.sendFile(REACT_INDEX_FILE);
+    return;
+  }
   res.sendFile(path.join(__dirname, 'search.html'));
 });
 
 app.get('/analytics', (req, res) => {
+  if (hasReactBuild) {
+    res.sendFile(REACT_INDEX_FILE);
+    return;
+  }
   res.sendFile(path.join(__dirname, 'analytics.html'));
 });
 
 app.get('/wallet', (req, res) => {
+  if (hasReactBuild) {
+    res.sendFile(REACT_INDEX_FILE);
+    return;
+  }
   res.sendFile(path.join(__dirname, 'wallet.html'));
 });
 
 app.get('/categories', (req, res) => {
+  if (hasReactBuild) {
+    res.sendFile(REACT_INDEX_FILE);
+    return;
+  }
   res.sendFile(path.join(__dirname, 'categories.html'));
+});
+
+app.get('/switch-user-mode', (req, res) => {
+  if (hasReactBuild) {
+    res.sendFile(REACT_INDEX_FILE);
+    return;
+  }
+  res.sendFile(path.join(__dirname, 'switch-user-mode.html'));
 });
 
 app.post('/api/auth/password-login', async (req, res) => {
@@ -732,16 +777,15 @@ app.get('/api/wallet/photo', async (req, res) => {
 
     const query = {
       $or: [
-        { userId: session.user.id },
-        ...(session.user.email ? [{ emailLower: normalizeEmail(session.user.email) }] : [])
+        ...(session.user?.id ? [{ userId: session.user.id }] : []),
+        ...(session.user?.email ? [{ emailLower: normalizeEmail(session.user.email) }] : []),
+        ...(session.user?.name ? [{ displayNameLower: normalizeDisplayName(session.user.name) }] : [])
       ]
     };
 
-    const userRecord = await usersCollection.findOne(
-      { userId: session.user.id },
-      query,
-      { projection: { walletPhoto: 1 } }
-    );
+    const userRecord = query.$or.length
+      ? await usersCollection.findOne(query, { projection: { walletPhoto: 1 } })
+      : await usersCollection.findOne({ userId: session.user.id }, { projection: { walletPhoto: 1 } });
 
     res.json({
       authenticated: true,
@@ -752,7 +796,6 @@ app.get('/api/wallet/photo', async (req, res) => {
   }
 });
 
-app.put('/api/wallet/photo', async (req, res) => {
 const handleSaveWalletPhoto = async (req, res) => {
   try {
     const session = requireSession(req, res);
@@ -765,23 +808,15 @@ const handleSaveWalletPhoto = async (req, res) => {
       return;
     }
 
-    await usersCollection.updateOne(
-      { userId: session.user.id },
-      {
-        $set: {
-          userId: session.user.id,
-          user: session.user,
-          walletPhoto: photo,
-          walletPhotoUpdatedAt: new Date(),
-          updatedAt: new Date()
     const query = {
       $or: [
-        { userId: session.user.id },
-        ...(session.user.email ? [{ emailLower: normalizeEmail(session.user.email) }] : [])
+        ...(session.user?.id ? [{ userId: session.user.id }] : []),
+        ...(session.user?.email ? [{ emailLower: normalizeEmail(session.user.email) }] : []),
+        ...(session.user?.name ? [{ displayNameLower: normalizeDisplayName(session.user.name) }] : [])
       ]
     };
 
-    const existingUser = await usersCollection.findOne(query);
+    const existingUser = query.$or.length ? await usersCollection.findOne(query) : null;
 
     if (existingUser) {
       await usersCollection.updateOne(
@@ -809,26 +844,18 @@ const handleSaveWalletPhoto = async (req, res) => {
             createdAt: new Date()
           }
         },
-        $setOnInsert: {
-          createdAt: new Date()
-        }
-      },
-      { upsert: true }
-    );
         { upsert: true }
       );
     }
 
     res.json({
       success: true,
-      message: 'Wallet photo saved'
       message: 'Wallet photo saved',
       photo
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
-});
 };
 
 app.put('/api/wallet/photo', handleSaveWalletPhoto);
@@ -841,25 +868,42 @@ app.delete('/api/wallet/photo', async (req, res) => {
 
     const query = {
       $or: [
-        { userId: session.user.id },
-        ...(session.user.email ? [{ emailLower: normalizeEmail(session.user.email) }] : [])
+        ...(session.user?.id ? [{ userId: session.user.id }] : []),
+        ...(session.user?.email ? [{ emailLower: normalizeEmail(session.user.email) }] : []),
+        ...(session.user?.name ? [{ displayNameLower: normalizeDisplayName(session.user.name) }] : [])
       ]
     };
 
-    await usersCollection.updateOne(
-      { userId: session.user.id },
-      query,
-      {
-        $set: {
-          user: session.user,
-          updatedAt: new Date()
-        },
-        $unset: {
-          walletPhoto: '',
-          walletPhotoUpdatedAt: ''
+    const existingUser = query.$or.length ? await usersCollection.findOne(query) : null;
+
+    if (existingUser) {
+      await usersCollection.updateOne(
+        { _id: existingUser._id },
+        {
+          $set: {
+            updatedAt: new Date()
+          },
+          $unset: {
+            walletPhoto: '',
+            walletPhotoUpdatedAt: ''
+          }
         }
-      }
-    );
+      );
+    } else {
+      await usersCollection.updateOne(
+        { userId: session.user.id },
+        {
+          $set: {
+            user: session.user,
+            updatedAt: new Date()
+          },
+          $unset: {
+            walletPhoto: '',
+            walletPhotoUpdatedAt: ''
+          }
+        }
+      );
+    }
 
     res.json({
       success: true,

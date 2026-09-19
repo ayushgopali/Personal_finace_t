@@ -3214,7 +3214,7 @@ function closeMenus() {
         backdrop.style.removeProperty('visibility');
     }
 
-    document.querySelectorAll('.top-actions [aria-expanded="true"]').forEach(button => {
+    document.querySelectorAll('[aria-expanded="true"]').forEach(button => {
         button.setAttribute('aria-expanded', 'false');
     });
 }
