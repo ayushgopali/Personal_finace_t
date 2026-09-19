@@ -33,7 +33,7 @@ const hasReactBuild = fs.existsSync(REACT_INDEX_FILE);
 if (hasReactBuild) {
   app.use(express.static(REACT_DIST_DIR));
 }
-app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname, '..')));
 
 // MongoDB Connection String - 
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://pranavbidkar24_db_user:Pranav241010@expensecluster.dnh0jqe.mongodb.net/?appName=ExpenseCluster";
