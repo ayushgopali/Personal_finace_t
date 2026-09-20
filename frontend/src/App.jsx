@@ -25,11 +25,10 @@ import SwitchUserMode from './pages/SwitchUserMode';
 function BodyClassSync() {
   const location = useLocation();
   useEffect(() => {
-    const authRoute = location.pathname === '/login' || location.pathname === '/switch-user-mode';
-    document.body.classList.toggle('auth-body', location.pathname === '/login');
+    const isAuth = location.pathname === '/login' || location.pathname === '/signup';
+    document.body.classList.toggle('auth-body', isAuth);
     document.body.classList.toggle('switch-mode-body', location.pathname === '/switch-user-mode');
     document.body.classList.toggle('wallet-page', location.pathname === '/wallet');
-    void authRoute;
   }, [location.pathname]);
   return null;
 }
@@ -47,6 +46,7 @@ export default function App() {
           <Route path="/search" element={<Search />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Login defaultMode="signup" />} />
           <Route path="/switch-user-mode" element={<SwitchUserMode />} />
 
           {/* Backward-compatible redirects for legacy standalone pages */}
@@ -56,6 +56,7 @@ export default function App() {
           <Route path="/search.html" element={<Navigate to="/search" replace />} />
           <Route path="/categories.html" element={<Navigate to="/categories" replace />} />
           <Route path="/login.html" element={<Navigate to="/login" replace />} />
+          <Route path="/signup.html" element={<Navigate to="/signup" replace />} />
           <Route path="/switch-user-mode.html" element={<Navigate to="/switch-user-mode" replace />} />
 
           <Route path="*" element={<Navigate to="/" replace />} />

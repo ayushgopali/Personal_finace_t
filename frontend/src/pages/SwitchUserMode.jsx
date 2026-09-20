@@ -28,9 +28,14 @@ export default function SwitchUserMode() {
     <main className="auth-page switch-mode-page">
       <nav className="auth-header switch-mode-header" aria-label="Feature navigation">
         <Link className="auth-brand" to="/">
-          <span className="logo-mark auth-logo"><span /><span /><span /><span /></span>
+          <div className="spendora-logo-badge" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#15803d" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+              <polyline points="16 7 22 7 22 13" />
+            </svg>
+          </div>
           <span>
-            <strong className="brand-word">Spendora</strong>
+            <strong className="spendora-brand-title" style={{ fontSize: '22px' }}>Spendora</strong>
             <small>Secure expense workspace</small>
           </span>
         </Link>

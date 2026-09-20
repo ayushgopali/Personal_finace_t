@@ -387,7 +387,7 @@ app.get('/api/auth/oauth-status', (req, res) => {
   });
 });
 
-app.get('/login', (req, res) => {
+app.get(['/login', '/signup'], (req, res) => {
   if (hasReactBuild) {
     res.sendFile(REACT_INDEX_FILE);
     return;

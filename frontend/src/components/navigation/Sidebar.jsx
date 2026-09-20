@@ -33,8 +33,13 @@ export default function Sidebar({ activeRail, onLogout }) {
 
   return (
     <aside className="side-rail liquid-rail-ready" aria-label="Dashboard navigation">
-      <Link className="logo-mark" to="/" aria-label="Expense tracker">
-        <span /><span /><span /><span />
+      <Link className="sidebar-brand-logo" to="/" aria-label="Spendora Dashboard">
+        <div className="spendora-logo-badge" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#15803d" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+            <polyline points="16 7 22 7 22 13" />
+          </svg>
+        </div>
       </Link>
       <nav
         className="rail-nav"
